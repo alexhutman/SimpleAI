@@ -1,0 +1,100 @@
+OXOOXXXXO#1-0-0#
+  X   XO #1-0-0#
+  X    OX#1-0-0#
+XOXXXOOOX#1-0-0#
+  XXXO  O#1-0-0#
+ X X OO X#1-0-0#
+XOOXO  XX#1-0-0#
+       X #0-1-0#
+X XOOX XO#0-0-1#
+    XO  X#0-0-1#
+ O  OXX X#0-1-0#
+  X XOX O#1-0-0#
+XOXOOXX  #0-1-0#
+  X      #2-1-0#
+   X O  X#1-0-0#
+OXX  XXOO#1-0-0#
+XOXOOXXXO#0-0-1#
+XXX O   O#1-0-0#
+  O    XX#0-1-0#
+  XO   X #1-0-0#
+OXOX X XO#1-0-0#
+  XO XX O#1-0-0#
+O XX     #1-0-0#
+   XOO XX#1-0-0#
+ O     XX#1-0-0#
+ OX X    #1-0-0#
+OOX XX XO#1-0-0#
+O      XX#1-0-0#
+ OXXXOO X#1-0-0#
+OOX X  X #1-0-0#
+XXO OOXX #0-1-0#
+X   OX   #0-0-1#
+XO   X   #1-1-0#
+    X X O#1-0-0#
+ O X X   #1-0-0#
+XXX O OOX#1-0-0#
+X O O  XX#0-1-0#
+XOOXXXO  #1-0-0#
+XOOOXXXOX#1-0-0#
+X   OX XO#0-0-1#
+OOXOXXXXO#1-0-0#
+X O     X#0-1-0#
+OX XXOO X#0-0-1#
+   XX  O #1-0-0#
+O X O  XX#1-0-0#
+XX OXXO O#1-1-0#
+XX      O#1-0-0#
+XXOOXXOXO#1-0-0#
+XO  OX X #0-1-0#
+X  O X   #0-1-0#
+ XOX X  O#1-0-0#
+ XO O  XX#0-1-0#
+ XO O XX #0-1-0#
+OXOXXXOXO#1-0-0#
+XOO XXXO #1-0-0#
+     XO X#1-0-0#
+XX O O  X#0-1-0#
+O XX  O X#1-0-0#
+O  X O XX#1-0-0#
+ X O X   #1-0-0#
+O XOOX XX#2-0-0#
+  X XOXO #1-0-0#
+   XXOO X#0-0-1#
+ X   X  O#1-0-0#
+XO  XX O #1-0-0#
+   X     #4-0-0#
+X      OX#1-0-0#
+    X    #2-0-0#
+  XOO X X#1-0-0#
+ X   O  X#1-0-0#
+XX  OOXOX#0-1-0#
+    O XX #0-1-0#
+OXXXOXOOX#1-0-0#
+      X  #2-1-0#
+OOXXXXXOO#1-0-0#
+ XOO XX  #1-0-0#
+ OX OXX  #0-1-0#
+X        #3-2-1#
+  X   O X#1-0-0#
+X  OXXO  #1-0-0#
+X XOOXX O#1-0-0#
+        X#4-2-1#
+XO  OXOXX#0-1-0#
+OXXXXOOOX#0-0-1#
+  XX OO X#1-0-0#
+O OXXXO X#1-0-0#
+XXOOO  XX#0-1-0#
+  X O X  #0-1-0#
+  X O   X#1-0-0#
+  X X   O#1-0-0#
+XX O XO  #0-1-0#
+ OXXXO XO#1-0-0#
+X  OX    #1-0-0#
+     X   #1-1-0#
+O  XX O X#1-0-0#
+XOOX X   #1-0-0#
+   X  O X#1-0-0#
+X X O  OX#1-0-0#
+O  XXX O #1-0-0#
+OOXXXOXXO#1-0-0#

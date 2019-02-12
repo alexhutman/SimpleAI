@@ -1,0 +1,132 @@
+   X X OO#0-1-0#
+O   XXOOX#0-1-0#
+XX OX  OO#0-1-0#
+ OX O X  #1-0-0#
+OXXO XXOO#0-1-0#
+XOOX XOOX#0-1-0#
+O X O   X#0-1-0#
+OOXXXO XO#0-1-0#
+O  X     #0-1-0#
+XO  OXOX #1-0-0#
+XOOX XO  #0-1-0#
+X   OOXOX#1-0-0#
+XXOOXXO O#0-1-0#
+X  OX O  #0-1-0#
+  OX X  O#0-1-0#
+X  O O  X#1-1-0#
+O  XX  O #0-1-0#
+ O  X    #0-1-0#
+OXXXO OOX#0-1-0#
+    XOX O#0-1-0#
+XX OXXOOO#1-0-0#
+XXOOOOXX #1-0-0#
+XO  OX   #1-0-0#
+  X  OO X#0-1-0#
+O    XO X#0-1-0#
+   O X   #1-1-0#
+ O  OX  X#1-0-0#
+OOXOXX XO#0-1-0#
+      O X#2-1-0#
+ O  OXX  #1-0-0#
+XOO OXOXX#1-0-0#
+     O  X#2-2-1#
+X  OOX XO#0-0-1#
+XOXOOOX X#1-0-0#
+ X      O#0-1-0#
+ X   OO X#0-1-0#
+XOO XX O #0-1-0#
+X X O OOX#0-1-0#
+ OXXXOOOX#0-1-0#
+ O  OXXOX#1-0-0#
+XX  O   O#0-1-0#
+O    O XX#1-1-0#
+  XOOXX O#0-1-0#
+O XOOX X #0-1-0#
+ O X  O X#0-1-0#
+OXOX XOXO#0-1-0#
+O  XXOO X#0-0-1#
+XOXOOX XO#0-0-1#
+X  OX  O #0-1-0#
+O XXO O X#0-1-0#
+  X XO  O#0-1-0#
+OXOX X  O#0-1-0#
+OXOO XXXO#0-1-0#
+   XOO  X#0-1-0#
+    XOO X#0-0-1#
+X  OXXO O#0-1-0#
+X       O#0-1-0#
+ OXX OO X#0-1-0#
+XOXOOXXO #1-0-0#
+  OX     #0-1-0#
+ XOO X   #0-1-0#
+  O     X#1-1-0#
+      X O#0-1-0#
+XXOOO OXX#1-0-0#
+X   O    #1-0-1#
+X XOOXXOO#0-1-0#
+X   OX  O#0-0-1#
+ O      X#1-1-0#
+    O X  #1-0-0#
+    O   X#4-0-0#
+  O O XX #1-0-0#
+  O O  XX#1-0-0#
+XO       #0-1-0#
+ O   X   #0-2-0#
+O  XOO XX#0-1-0#
+ OO    XX#0-1-0#
+XOXO O  X#1-0-0#
+X   O  OX#0-1-0#
+X   O XO #1-0-0#
+O OXX O X#0-1-0#
+O XO   X #0-1-0#
+OOOXOXX X#1-0-0#
+ XOO XX O#0-1-0#
+XOOOXXXO #0-1-0#
+ XOOO  XX#1-0-0#
+XX OOOXOX#1-0-0#
+  OXOO XX#0-1-0#
+   O    X#1-0-0#
+XO   X O #0-1-0#
+OX XXOOOX#0-0-1#
+X O O   X#1-0-0#
+XOOXOO XX#0-1-0#
+X  O     #2-0-0#
+OXOXXOO X#0-1-0#
+XX OOO  X#1-0-0#
+OX X OO X#0-1-0#
+ OXOOXX  #1-0-0#
+XOOX  O X#0-1-0#
+OXX   OOX#0-1-0#
+ OOXOX  X#1-0-0#
+   O XX O#0-1-0#
+O  X  O X#0-1-0#
+   OX    #0-1-0#
+ OOX X   #0-1-0#
+ OXXXO  O#0-1-0#
+   OO X X#0-1-0#
+  X     O#0-1-0#
+OXX  X OO#0-1-0#
+ X   X OO#0-1-0#
+O  X XXOO#0-1-0#
+XX O XO O#1-0-0#
+X O O OXX#1-0-0#
+O XX  O  #0-1-0#
+  X O    #1-0-0#
+ OOXO  XX#0-1-0#
+      XO #0-1-0#
+OOX X  XO#0-1-0#
+    O  X #1-0-0#
+  X  OXO #0-1-0#
+ XO OOXX #1-0-0#
+   X   O #1-1-0#
+       OX#1-1-0#
+X  O XO  #1-0-0#
+  XO     #0-1-0#
+OOX X    #0-1-0#
+  X   OOX#0-1-0#
+OOXX XXOO#0-1-0#
+O XOO  XX#0-1-0#
+XOX O O X#0-1-0#
+XO  O   X#0-1-0#
+ OXOO X X#0-1-0#
+O       X#0-1-0#
