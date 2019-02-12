@@ -3,6 +3,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Iterator;
 import java.util.Set;
+
 public class Record 
 {
 	String record;
@@ -10,6 +11,7 @@ public class Record
 	double score = 0;
 	public static double INITIAL_SCORE = 0.5; // could be 0.8
 	public static double alpha = 0.2; //Blending value 
+
 	public Record (int player, String record)
 	{
 		this.player = player;
