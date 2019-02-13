@@ -6,6 +6,7 @@ import java.util.Set;
 
 public class Record 
 {
+	//Test
 	String record;
 	int player;
 	double score = 0;
