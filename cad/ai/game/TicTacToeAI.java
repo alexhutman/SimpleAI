@@ -105,7 +105,8 @@ public class TicTacToeAI extends AbstractAI {
     			String curboard = new String(board);
     			int maxScore = 0;
     			String str = new String("");
-
+				int s = ran.nextInt(3);
+				double delta = 1.5;
     			for(int x = 0; x < curboard.length(); x++)
     			{
     				if(curboard.charAt(x) == ' ')
@@ -117,10 +118,11 @@ public class TicTacToeAI extends AbstractAI {
     					if(hmap.containsKey(str))
     					{
 
-    						if(hmap.get(str).getScore() > maxScore)
-    						{
-    							i = x;
-    						} 
+    						double d = (hmap.get(str).getScore() * s)+delta;
+							if(d > maxScore)
+							{
+								i = x;
+							}
     					}
     				}
     				else
