@@ -28,7 +28,7 @@ public class TicTacToeAI extends AbstractAI {
     protected Stack<String> setOfMoves ;
     protected BufferedReader reader;
     protected String fileName;
-    private String pattern = "#([0-9]+)-([0-9]+)-([0-9]+)#";
+    private String pattern = "#([0-9]+)-([0-9]+)-([0-9]+)#([0-9]+).([0-9]+)";
     private Pattern r;
     private Matcher m;
 
@@ -44,7 +44,7 @@ public class TicTacToeAI extends AbstractAI {
     	String line;
     	String boardState;
     	int wins, losses, ties;
-
+		double score;
     	try {
     		reader = new BufferedReader(new FileReader(this.fileName));
     		while ((line = reader.readLine()) != null) {
@@ -54,7 +54,10 @@ public class TicTacToeAI extends AbstractAI {
     				wins = Integer.parseInt(m.group(1));
     				losses = Integer.parseInt(m.group(2));
     				ties = Integer.parseInt(m.group(3));
-    				Record r = new Record(wins,losses,ties);
+					String strscore = m.group(4)+m.group(5);
+					score = Double.valueOf(strscore);
+    				Record r = new Record(wins,losses,ties,score);
+					System.out.println(r.ReturnRecord()+" "+r.ReturnScore());
     				hmap.put(boardState,r);
     			}
     			else {
@@ -87,7 +90,7 @@ public class TicTacToeAI extends AbstractAI {
     	char[] board = (char[]) game.getStateAsObject();
 
 
-
+		//score*probablity(random)+delta
         // First see how many open slots there are
     	int openSlots = 0;
     	int i = 0;
@@ -102,6 +105,7 @@ public class TicTacToeAI extends AbstractAI {
     			String curboard = new String(board);
     			int maxScore = 0;
     			String str = new String("");
+
     			for(int x = 0; x < curboard.length(); x++)
     			{
     				if(curboard.charAt(x) == ' ')
@@ -212,6 +216,7 @@ public class TicTacToeAI extends AbstractAI {
     			out.print(separator);
     			out.print(x.ReturnRecord());
     			out.print(separator);
+				out.print(x.ReturnScore());
     			out.println();
     		}
     		out.flush();  

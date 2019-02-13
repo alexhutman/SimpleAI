@@ -35,7 +35,7 @@ public class PlayGame {
     private GameType gameType;
     private int numGames;
     private int verbose;
-    private String path = "c:/Users/Alex/Dropbox/School Snoot/Spring 2019/AI/TTT/cad/ai/game/";
+    private String path = "C:/Ai_Repo/SimpleAI/cad/ai/game/";
     
     /**
      * Constructor
