@@ -28,7 +28,7 @@ public class TicTacToeAI extends AbstractAI {
     protected Stack<String> setOfMoves ;
     protected BufferedReader reader;
     protected String fileName;
-    private String pattern = "#([0-9]+)-([0-9]+)-([0-9]+)#([0-9]+).([0-9]+)";
+    private String pattern = "#([0-9]+)-([0-9]+)-([0-9]+)#([0-9]+.[0-9]+(E[0-9]+)?)";
     private Pattern r;
     private Matcher m;
 
@@ -54,10 +54,10 @@ public class TicTacToeAI extends AbstractAI {
     				wins = Integer.parseInt(m.group(1));
     				losses = Integer.parseInt(m.group(2));
     				ties = Integer.parseInt(m.group(3));
-					String strscore = m.group(4)+m.group(5);
+					String strscore = m.group(4);
 					score = Double.valueOf(strscore);
     				Record r = new Record(wins,losses,ties,score);
-					System.out.println(r.ReturnRecord()+" "+r.ReturnScore());
+					//System.out.println(r.ReturnRecord()+" "+r.ReturnScore());
     				hmap.put(boardState,r);
     			}
     			else {
@@ -103,7 +103,7 @@ public class TicTacToeAI extends AbstractAI {
     		if(game.getPlayer() == 0 && hmap.isEmpty() == false)
     		{
     			String curboard = new String(board);
-    			int maxScore = 0;
+    			double maxScore = 0;
     			String str = new String("");
 				int s = ran.nextInt(3);
 				double delta = 1.5;
@@ -118,15 +118,21 @@ public class TicTacToeAI extends AbstractAI {
     					if(hmap.containsKey(str))
     					{
 
-    						double d = (hmap.get(str).getScore() * s)+delta;
-							if(d > maxScore)
+    						if(hmap.get(str).getScore() > maxScore)
 							{
-								i = x;
-							}
+							i = x;
+							maxScore = hmap.get(str).getScore();
+							} 
     					}
+						else 
+						{
+							Record newRecord = new Record(0, false);
+							hmap.put(str, newRecord);
+						}
     				}
     				else
     				{
+						
     					i = -1;
     				}
     			}

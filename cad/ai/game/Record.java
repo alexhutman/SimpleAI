@@ -11,15 +11,20 @@ public class Record
 	int player;
 	public double score = 0;
 	public static double INITIAL_SCORE = 0.5; // could be 0.8
-	public static double alpha = 0.2; //Blending value 
+	public static double alpha = 0.13; //Blending value 
 	public int wins = 0;
 	public int losses = 0;
 	public int ties = 0;
+	public Record(int player, boolean isAtEnd)
+	{
+		this.score = INITIAL_SCORE;
+		
+	}
 	public Record (int player, String result)
 	{
 		this.player = player;
 		this.score = INITIAL_SCORE;
-		updateRecord(result);
+			updateRecord(result);
 		this.record = ReturnRecord();
 	}
 	public Record( int wins, int losses, int ties, double score)
