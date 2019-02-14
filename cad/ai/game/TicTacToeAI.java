@@ -14,6 +14,7 @@ import java.io.*;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.lang.*;
 
 /***********************************************************
  * The AI system for a TicTacToeGame.
@@ -31,7 +32,8 @@ public class TicTacToeAI extends AbstractAI {
     private String pattern = "#([0-9]+)-([0-9]+)-([0-9]+)#([0-9]+.[0-9]+(E[0-9]+)?)";
     private Pattern r;
     private Matcher m;
-
+	private int numGames = 0;
+	private double balancer = 0.0;
     public TicTacToeAI(String fileName) 
     {
     	this.fileName = fileName;
@@ -40,7 +42,6 @@ public class TicTacToeAI extends AbstractAI {
     	hmap = new HashMap<String, Record>();
     	setOfMoves =  new Stack<>();
     	this.r = Pattern.compile(this.pattern);
-
     	String line;
     	String boardState;
     	int wins, losses, ties;
@@ -69,7 +70,10 @@ public class TicTacToeAI extends AbstractAI {
     	catch (Exception jeff) {
     		System.out.println("ERROR:" + jeff);
     	}
-
+		for(int i = 0; i < this.numGames; i++)
+		{
+			balancer += .001;
+		}
     }
 
     public synchronized void attachGame(Game g) {
@@ -99,16 +103,18 @@ public class TicTacToeAI extends AbstractAI {
     		{				
     			openSlots++;
     		}
-
+		 for(int m = 0; m < openSlots; m++)
+		{
+			balancer += .05;
+		} 
     		if(game.getPlayer() == 0 && hmap.isEmpty() == false)
     		{
     			String curboard = new String(board);
     			double maxScore = 0;
     			String str = new String("");
-				int s = ran.nextInt(3);
-				double delta = 1.5;
     			for(int x = 0; x < curboard.length(); x++)
     			{
+					double randomNum = Math.random()-balancer;
     				if(curboard.charAt(x) == ' ')
     				{
     					StringBuilder strbld = new StringBuilder(curboard);
@@ -118,11 +124,15 @@ public class TicTacToeAI extends AbstractAI {
     					if(hmap.containsKey(str))
     					{
 
-    						if(hmap.get(str).getScore() > maxScore)
+    						if((hmap.get(str).getScore() + (randomNum-balancer)) > maxScore)
 							{
 							i = x;
 							maxScore = hmap.get(str).getScore();
 							} 
+							else
+							{
+								i = -1;
+							}
     					}
 						else 
 						{
@@ -198,6 +208,7 @@ public class TicTacToeAI extends AbstractAI {
     		}
 
     	} 
+		this.numGames ++;
         game = null;  // No longer playing a game though.
     }
 
