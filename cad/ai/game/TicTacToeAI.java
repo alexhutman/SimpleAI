@@ -72,7 +72,7 @@ public class TicTacToeAI extends AbstractAI {
     	}
 		for(int i = 0; i < this.numGames; i++)
 		{
-			balancer += .001;
+			balancer += .01;
 		}
     }
 
@@ -124,10 +124,10 @@ public class TicTacToeAI extends AbstractAI {
     					if(hmap.containsKey(str))
     					{
 
-    						if((hmap.get(str).getScore() + (randomNum-balancer)) > maxScore)
+    						if((hmap.get(str).getScore() + (randomNum)) > maxScore)
 							{
 							i = x;
-							maxScore = hmap.get(str).getScore();
+							maxScore = hmap.get(str).getScore() + (randomNum);
 							} 
 							else
 							{
