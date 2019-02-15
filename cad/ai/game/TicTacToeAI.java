@@ -107,16 +107,17 @@ public class TicTacToeAI extends AbstractAI {
 		{
 			balancer += .05;
 		} 
-    		if(game.getPlayer() == 0 && hmap.isEmpty() == false)
+    		if(hmap.isEmpty() == false)
     		{
     			String curboard = new String(board);
     			double maxScore = 0;
     			String str = new String("");
     			for(int x = 0; x < curboard.length(); x++)
     			{
-					double randomNum = Math.random()-balancer;
+					
     				if(curboard.charAt(x) == ' ')
     				{
+						double randomNum = Math.random()-balancer;
     					StringBuilder strbld = new StringBuilder(curboard);
     					strbld.setCharAt(x,'X');
     					str = strbld.toString();
@@ -152,7 +153,7 @@ public class TicTacToeAI extends AbstractAI {
     			i = -1;
     		}  
 
-    		if(i == -1 || game.getPlayer() == 1)
+    		 if(i == -1)
     		{
 			// Now pick a random open slot
     			int s = ran.nextInt(openSlots);
@@ -162,7 +163,7 @@ public class TicTacToeAI extends AbstractAI {
     			{
     				i++;
 				if (board[i] == ' ') s--;  // One more open slot down
-			}
+			} 
 		}
 		
 		if(game.getPlayer() == 0)
