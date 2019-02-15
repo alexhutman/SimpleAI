@@ -32,8 +32,8 @@ public class TicTacToeAI extends AbstractAI {
     private String pattern = "#([0-9]+)-([0-9]+)-([0-9]+)#([0-9]+.[0-9]+(E[0-9]+)?)";
     private Pattern r;
     private Matcher m;
-	private int numGames = 0;
-	private double balancer = 0.0;
+    private int numGames = 0;
+    private double balancer = 0.0;
     public TicTacToeAI(String fileName) 
     {
     	this.fileName = fileName;
@@ -45,7 +45,7 @@ public class TicTacToeAI extends AbstractAI {
     	String line;
     	String boardState;
     	int wins, losses, ties;
-		double score;
+    	double score;
     	try {
     		reader = new BufferedReader(new FileReader(this.fileName));
     		while ((line = reader.readLine()) != null) {
@@ -55,8 +55,8 @@ public class TicTacToeAI extends AbstractAI {
     				wins = Integer.parseInt(m.group(1));
     				losses = Integer.parseInt(m.group(2));
     				ties = Integer.parseInt(m.group(3));
-					String strscore = m.group(4);
-					score = Double.valueOf(strscore);
+    				String strscore = m.group(4);
+    				score = Double.valueOf(strscore);
     				Record r = new Record(wins,losses,ties,score);
 					//System.out.println(r.ReturnRecord()+" "+r.ReturnScore());
     				hmap.put(boardState,r);
@@ -70,10 +70,10 @@ public class TicTacToeAI extends AbstractAI {
     	catch (Exception jeff) {
     		System.out.println("ERROR:" + jeff);
     	}
-		for(int i = 0; i < this.numGames; i++)
-		{
-			balancer += .01;
-		}
+    	for(int i = 0; i < this.numGames; i++)
+    	{
+    		balancer += .01;
+    	}
     }
 
     public synchronized void attachGame(Game g) {
@@ -98,71 +98,64 @@ public class TicTacToeAI extends AbstractAI {
         // First see how many open slots there are
     	int openSlots = 0;
     	int i = 0;
-    	for (i = 0; i < board.length; i++)
+
+    	for (i = 0; i < board.length; i++) {
     		if (board[i] == ' ')
     		{				
     			openSlots++;
     		}
-		 for(int m = 0; m < openSlots; m++)
-		{
-			balancer += .05;
-		} 
-    		if(hmap.isEmpty() == false)
+    	}
+    	for(int m = 0; m < openSlots; m++)
+    	{
+    		balancer -= .05;
+    	} 
+    	if(!hmap.isEmpty())
+    	{
+    		String curboard = new String(board);
+    		double maxScore = 0;
+    		String str = new String("");
+    		for(int x = 0; x < curboard.length(); x++)
     		{
-    			String curboard = new String(board);
-    			double maxScore = 0;
-    			String str = new String("");
-    			for(int x = 0; x < curboard.length(); x++)
+
+    			if(curboard.charAt(x) == ' ')
     			{
-					
-    				if(curboard.charAt(x) == ' ')
-    				{
-						double randomNum = Math.random()-balancer;
-    					StringBuilder strbld = new StringBuilder(curboard);
-    					strbld.setCharAt(x,'X');
-    					str = strbld.toString();
+    				double randomNum = Math.random()-balancer;
+    				StringBuilder strbld = new StringBuilder(curboard);
+    				strbld.setCharAt(x,'X');
+    				str = strbld.toString();
 
-    					if(hmap.containsKey(str))
+    				if(hmap.containsKey(str))
+    				{
+
+    					if((hmap.get(str).getScore() + (randomNum)) > maxScore)
     					{
+    						i = x;
+    						maxScore = hmap.get(str).getScore() + (randomNum);
+    					} 
 
-    						if((hmap.get(str).getScore() + (randomNum)) > maxScore)
-							{
-							i = x;
-							maxScore = hmap.get(str).getScore() + (randomNum);
-							} 
-							else
-							{
-								i = -1;
-							}
-    					}
-						else 
-						{
-							Record newRecord = new Record(0, false);
-							hmap.put(str, newRecord);
-						}
     				}
-    				else
+    				else 
     				{
-						
-    					i = -1;
+    					Record newRecord = new Record(0, false);
+    					hmap.put(str, newRecord);
     				}
     			}
     		}
-    		else
-    		{
-    			i = -1;
-    		}  
+    	} 
 
-    		 if(i == -1)
-    		{
+    	if(i == 9)
+    	{
 			// Now pick a random open slot
-    			int s = ran.nextInt(openSlots);
+			System.out.println("WOIHRWHROIHWR");
+    		int s = ran.nextInt(openSlots);
 			// And get the proper row
-    			i = -1;
-    			while (s >= 0) 
-    			{
-    				i++;
+    		i = -1;
+    		while (s >= 0) 
+    		{
+
+    			i++;
 				if (board[i] == ' ') s--;  // One more open slot down
+
 			} 
 		}
 		
@@ -209,7 +202,7 @@ public class TicTacToeAI extends AbstractAI {
     		}
 
     	} 
-		this.numGames ++;
+    	this.numGames ++;
         game = null;  // No longer playing a game though.
     }
 
@@ -236,7 +229,7 @@ public class TicTacToeAI extends AbstractAI {
     			out.print(separator);
     			out.print(x.ReturnRecord());
     			out.print(separator);
-				out.print(x.ReturnScore());
+    			out.print(x.ReturnScore());
     			out.println();
     		}
     		out.flush();  
