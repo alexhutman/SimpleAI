@@ -72,7 +72,7 @@ public class TicTacToeAI extends AbstractAI {
     	}
     	for(int i = 0; i < this.numGames; i++)
     	{
-    		balancer += .01;
+    		balancer += (1.0/this.numGames);
     	}
     }
 
@@ -92,7 +92,15 @@ public class TicTacToeAI extends AbstractAI {
     	}
 
     	char[] board = (char[]) game.getStateAsObject();
-
+		char player;
+		if(game.getPlayer() == 0)
+		{
+			player = 'X';
+		}
+		else
+		{
+			player = 'O';
+		}
 
 		//score*probablity(random)+delta
         // First see how many open slots there are
@@ -105,48 +113,41 @@ public class TicTacToeAI extends AbstractAI {
     			openSlots++;
     		}
     	}
-    	for(int m = 0; m < openSlots; m++)
-    	{
-    		balancer -= .05;
-    	} 
-    	if(!hmap.isEmpty())
-    	{
-    		String curboard = new String(board);
-    		double maxScore = 0;
-    		String str = new String("");
-    		for(int x = 0; x < curboard.length(); x++)
-    		{
-
-    			if(curboard.charAt(x) == ' ')
-    			{
-    				double randomNum = Math.random()-balancer;
-    				StringBuilder strbld = new StringBuilder(curboard);
-    				strbld.setCharAt(x,'X');
-    				str = strbld.toString();
-
-    				if(hmap.containsKey(str))
-    				{
-
-    					if((hmap.get(str).getScore() + (randomNum)) > maxScore)
-    					{
-    						i = x;
-    						maxScore = hmap.get(str).getScore() + (randomNum);
-    					} 
-
-    				}
-    				else 
-    				{
-    					Record newRecord = new Record(0, false);
-    					hmap.put(str, newRecord);
-    				}
-    			}
-    		}
-    	} 
+    	balancer -= 0.05*openSlots;
+		double score = 0;
+		double maxScore = -1;
+		String str = "";
+    	for(int x = 0; x < board.length; x++)
+		{
+			double randomNum = Math.random()*balancer;
+			if(board[x] == ' ')
+			{	
+				String copyBoard = new String (board);
+				StringBuilder strbld = new StringBuilder(copyBoard);
+				strbld.setCharAt(x,player);
+				str = strbld.toString();
+				Record record = hmap.get(str);
+				if(record == null)
+				{
+					Record newRecord = new Record(0,false);
+					hmap.put(copyBoard, newRecord);
+				}
+				else
+				{
+					score = record.getScore()+ randomNum;
+					if(score > maxScore)
+					{
+						maxScore = score;
+						i = x;
+					}
+				}
+			}
+		}
+		
 
     	if(i == 9)
     	{
 			// Now pick a random open slot
-			System.out.println("WOIHRWHROIHWR");
     		int s = ran.nextInt(openSlots);
 			// And get the proper row
     		i = -1;
