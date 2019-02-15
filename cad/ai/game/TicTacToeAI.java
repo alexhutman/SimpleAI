@@ -29,11 +29,13 @@ public class TicTacToeAI extends AbstractAI {
     protected Stack<String> setOfMoves ;
     protected BufferedReader reader;
     protected String fileName;
-    private String pattern = "#([0-9]+)-([0-9]+)-([0-9]+)#([0-9]+.[0-9]+(E[0-9]+)?)";
+    private String pattern = "#([0-9]+)-([0-9]+)-([0-9]+)#([0-9]+.[0-9]+(E-?[0-9]+)?)";
     private Pattern r;
     private Matcher m;
     private int numGames = 0;
-    private double balancer = 0.0;
+	private double level = 0.0;
+	private static final double DEFAULT_BALANCER = 0.0;
+    private double balancer = 100.0;
     public TicTacToeAI(String fileName) 
     {
     	this.fileName = fileName;
@@ -57,6 +59,11 @@ public class TicTacToeAI extends AbstractAI {
     				ties = Integer.parseInt(m.group(3));
     				String strscore = m.group(4);
     				score = Double.valueOf(strscore);
+					//if (score > 1.0) {
+						//	System.out.println("DEBUG: Line = " + line);
+							//System.out.println("DEBUG: Groups: " + m.group(1) + " " + m.group(2) + " " + m.group(3) + " " + m.group(4));
+					//}
+					
     				Record r = new Record(wins,losses,ties,score);
 					//System.out.println(r.ReturnRecord()+" "+r.ReturnScore());
     				hmap.put(boardState,r);
@@ -70,14 +77,13 @@ public class TicTacToeAI extends AbstractAI {
     	catch (Exception jeff) {
     		System.out.println("ERROR:" + jeff);
     	}
-    	for(int i = 0; i < this.numGames; i++)
-    	{
-    		balancer += (1.0/this.numGames);
-    	}
+    	
     }
 
-    public synchronized void attachGame(Game g) {
+    public synchronized void attachGame(Game g) 
+	{
     	game = (TicTacToeGame) g;
+		
     }
     
     /**
@@ -113,7 +119,7 @@ public class TicTacToeAI extends AbstractAI {
     			openSlots++;
     		}
     	}
-    	balancer -= 0.05*openSlots;
+    	balancer = DEFAULT_BALANCER * Math.pow(0.95, 9-openSlots);
 		double score = 0;
 		double maxScore = -1;
 		String str = "";
@@ -129,18 +135,16 @@ public class TicTacToeAI extends AbstractAI {
 				Record record = hmap.get(str);
 				if(record == null)
 				{
-					Record newRecord = new Record(0,false);
-					hmap.put(copyBoard, newRecord);
+					record  = new Record(0,false);
+					hmap.put(str, record);
 				}
-				else
-				{
 					score = record.getScore()+ randomNum;
 					if(score > maxScore)
 					{
 						maxScore = score;
 						i = x;
-					}
-				}
+					} 
+				
 			}
 		}
 		
@@ -185,25 +189,40 @@ public class TicTacToeAI extends AbstractAI {
     	setOfMoves.clear();
     	int player = game.getPlayer();
 
+		// Determine if we won (2), lost (0), or tied (1)
+		int res = 0;
+		if (result == 'T') res = 1;  // We ties
+		else if (result == 'H') {
+			if (player == 0) res = 2; // We won
+			else res = 0; // We lost
+		} else { // result == 'A'
+			if (player == 1) res = 2; // We won
+			else res = 0; // We lost
+		}
+		
     	for(int i = 0; i < setOfMovesArr.length; i++)
     	{
     		if(hmap.containsKey(setOfMovesArr[i]))
     		{
 
-    			hmap.get(setOfMovesArr[i]).updateRecord(Character.toString(result));
+    			hmap.get(setOfMovesArr[i]).updateRecord(res);
 
 
     		}
     		else
     		{
-    			Record newRecord = new Record(player, Character.toString(result));
+    			Record newRecord = new Record(player, res);
     			hmap.put(setOfMovesArr[i], newRecord); 
 
 
     		}
 
     	} 
-    	this.numGames ++;
+		
+    	/* this.numGames ++;
+		this.level = ((1+(double)numGames)/100000)+1;
+		this.balancer = 100/Math.pow(10,level); */
+		//System.out.println(level+"-"+balancer+"-"+numGames);
         game = null;  // No longer playing a game though.
     }
 

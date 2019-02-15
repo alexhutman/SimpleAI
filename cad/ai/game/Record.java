@@ -20,7 +20,7 @@ public class Record
 		this.score = INITIAL_SCORE;
 		
 	}
-	public Record (int player, String result)
+	public Record (int player, int result)
 	{
 		this.player = player;
 		this.score = INITIAL_SCORE;
@@ -35,44 +35,22 @@ public class Record
 		this.score = score;
 		this.record = ReturnRecord(); 
 	}
-	public void updateRecord(String result)
+	
+	// result = 0 (LOSS), 1 (TIE), 2 (WIN)
+	public void updateRecord(int result)
 	{
-		if(this.player == 0)
-		{
-			if(result.equals("H"))
-			{
-				this.wins++;
-				this.score = this.score * (1 - alpha) + 1 * alpha; 
-			}
-			else if(result.equals("A"))
-			{
-				this.losses++;
-				this.score = this.score * (1 - alpha) + 0 * alpha; 
-			}
-			else
-			{
-				this.ties++;
-				this.score = this.score * (1 - alpha) + .5 * alpha; 
-			}
+		if (result == 2) {
+			this.wins++;
+			this.score = this.score * (1 - alpha) + 1 * alpha;
+		} else if (result == 0) {
+			this.losses++;
+			this.score = this.score * (1 - alpha) + 0 * alpha; 
+		} else if (result == 1) {
+			this.ties++;
+			this.score = this.score * (1 - alpha) + .5 * alpha; 
 		}
-		else
-		{
-			if(result.equals("H"))
-			{
-				this.losses++;
-				this.score = this.score * (1 - alpha) + 0 * alpha;  
-			}
-			else if(result.equals("A"))
-			{
-				this.wins++;
-				this.score = this.score * (1 - alpha) + 1 * alpha; 
-			}
-			else
-			{
-				this.ties++;
-				this.score = this.score * (1 - alpha) + .5 * alpha; 
-			}
-		}
+		
+		if (this.score > 1.0 || this.score < 0.0) System.err.println("CODING ERROR: " + this.score);
 	}
 	public double getScore() 
 	{

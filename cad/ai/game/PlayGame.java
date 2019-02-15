@@ -61,16 +61,16 @@ public class PlayGame {
         case TTT:
             switch (homeAI) {
             case 0: ai[0] = null; break;
-            case 1: ai[0] = new TicTacToeAI(this.path + "TTT-home.txt"); break;  // Edit these for 
-            default: ai[0] = new TicTacToeAI(this.path + "TTT-home.txt"); break; 
+            case 1: ai[0] = new TicTacToeAI(this.path + "TTT-MasterRaceAI.txt"); break;  // Edit these for 
+            default: ai[0] = new TicTacToeAI(this.path + "TTT-MasterRaceAI.txt"); break; 
             }
             switch (awayAI) {
             case 0: ai[1] = null; break;
-            case 1: ai[1] = new TicTacToeAI(this.path + "TTT-away.txt"); break;  // Edit these as well...
+            case 1: ai[1] = new TicTacToeAI(this.path + "TTT-MasterRaceAI.txt"); break;  // Edit these as well...
             // case 2: ai[1] = new TicTacToeAILearn("memoryA.dat"); break;
             // case 3: ai[1] = new TicTacToeAILearn("memoryB.dat"); break;
             // case 4: ai[1] = new TicTacToeAIMinimax(); break;  // "Perfect" play
-            default: ai[0] = new TicTacToeAI(this.path + "TTT-away.txt"); break; 
+            default: ai[0] = new TicTacToeAI(this.path + "TTT-MasterRaceAI.txt"); break; 
             }
             break;
         case NIM:
