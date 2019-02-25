@@ -33,9 +33,12 @@ public class TicTacToeAI extends AbstractAI {
     private Pattern r;
     private Matcher m;
     private int numGames = 0;
-	private double level = 0.0;
 	private static final double DEFAULT_BALANCER = 0.0;
     private double balancer = 100.0;
+	public TicTacToeAI()
+	{
+		this("C:/Ai_Repo/SimpleAI/cad/ai/game/TTT-MasterRaceAI.txt");
+	}
     public TicTacToeAI(String fileName) 
     {
     	this.fileName = fileName;
@@ -59,13 +62,7 @@ public class TicTacToeAI extends AbstractAI {
     				ties = Integer.parseInt(m.group(3));
     				String strscore = m.group(4);
     				score = Double.valueOf(strscore);
-					//if (score > 1.0) {
-						//	System.out.println("DEBUG: Line = " + line);
-							//System.out.println("DEBUG: Groups: " + m.group(1) + " " + m.group(2) + " " + m.group(3) + " " + m.group(4));
-					//}
-					
     				Record r = new Record(wins,losses,ties,score);
-					//System.out.println(r.ReturnRecord()+" "+r.ReturnScore());
     				hmap.put(boardState,r);
     			}
     			else {
@@ -96,7 +93,6 @@ public class TicTacToeAI extends AbstractAI {
     		System.err.println("CODE ERROR: AI is not attached to a game.");
     		return "0";
     	}
-
     	char[] board = (char[]) game.getStateAsObject();
 		char player;
 		if(game.getPlayer() == 0)
@@ -107,13 +103,10 @@ public class TicTacToeAI extends AbstractAI {
 		{
 			player = 'O';
 		}
-
-		//score*probablity(random)+delta
-        // First see how many open slots there are
     	int openSlots = 0;
     	int i = 0;
-
-    	for (i = 0; i < board.length; i++) {
+    	for (i = 0; i < board.length; i++) 
+		{
     		if (board[i] == ' ')
     		{				
     			openSlots++;
@@ -144,27 +137,9 @@ public class TicTacToeAI extends AbstractAI {
 						maxScore = score;
 						i = x;
 					} 
-				
 			}
 		}
-		
-
-    	if(i == 9)
-    	{
-			// Now pick a random open slot
-    		int s = ran.nextInt(openSlots);
-			// And get the proper row
-    		i = -1;
-    		while (s >= 0) 
-    		{
-
-    			i++;
-				if (board[i] == ' ') s--;  // One more open slot down
-
-			} 
-		}
-		
-		if(game.getPlayer() == 0)
+		if(player == 'X')
 		{
 			board[i] = 'X';
 		}
@@ -204,25 +179,14 @@ public class TicTacToeAI extends AbstractAI {
     	{
     		if(hmap.containsKey(setOfMovesArr[i]))
     		{
-
-    			hmap.get(setOfMovesArr[i]).updateRecord(res);
-
-
+				hmap.get(setOfMovesArr[i]).updateRecord(res);
     		}
     		else
     		{
     			Record newRecord = new Record(player, res);
     			hmap.put(setOfMovesArr[i], newRecord); 
-
-
     		}
-
     	} 
-		
-    	/* this.numGames ++;
-		this.level = ((1+(double)numGames)/100000)+1;
-		this.balancer = 100/Math.pow(10,level); */
-		//System.out.println(level+"-"+balancer+"-"+numGames);
         game = null;  // No longer playing a game though.
     }
 
@@ -232,7 +196,6 @@ public class TicTacToeAI extends AbstractAI {
     @Override
     public synchronized void end() 
     {
-
         // This AI probably wants to store (in a file) what
         // it has learned from playing all the games so far...
     	try {
@@ -244,7 +207,6 @@ public class TicTacToeAI extends AbstractAI {
     		{
     			char separator = '#';
     			Record x = hmap.get(keys[i].toString());
-
     			out.print(keys[i].toString());
     			out.print(separator);
     			out.print(x.ReturnRecord());
@@ -259,8 +221,6 @@ public class TicTacToeAI extends AbstractAI {
     	{
     		System.out.println("ERROR: " + meme);
     	}
-
-
     }
 }
 
