@@ -60,10 +60,9 @@ public class OthelloAI extends AbstractAI {
         for(OthelloGame.Action a : actions)
         {
             char [][] copyBoard = result(board, a, game.getPlayer());
-            int score = maxValue(copyBoard);
+            int score = minValue(copyBoard);
             if (score > bestScore) 
             {
-                
                 bestAction = a;
                 bestScore = score;
             }
@@ -78,17 +77,15 @@ public class OthelloAI extends AbstractAI {
         else
         {
             System.out.println("BESTACTION: " + bestAction.toString());
-            return actions.get(actions.indexOf(bestAction)).toString();
+            return bestAction.toString();
         }
     }   
     
 
     public char [][] result (char [][] board, OthelloGame.Action action, int player) {
-        char[][] res = (char[][]) board.clone();
-        int row = action.row;
-        int col = action.col;
-        res[row][col] = (player == 0 ? 'X' : 'O');
-        return res;
+        practiceGame.updateState(player, board);
+        practiceGame.processMove(player, action.row, action.col);
+        return (char[][]) practiceGame.getStateAsObject();
     }
 
   /**
@@ -97,35 +94,44 @@ public class OthelloAI extends AbstractAI {
      **/
     private int minValue(char[][] board) 
     {
-        int turn = 1 - practiceGame.getPlayer();
+        int turn = 1 - game.getPlayer();
         // Is this a terminal board
         practiceGame.updateState(turn,board);
+        //System.out.println("Min Value: ");
+        //practiceGame.displayState();
+        //System.out.println("==============");
         if (practiceGame.computeWinner()) 
         {
             // We have a winner - return its Utility
             //   1 for Player wins, -1 for Player loses, 0 for Tie
             int w = practiceGame.getWinner();
-            return w < 0 ? 0 : w == game.getPlayer() ? 1 : -1;
+            // return w < 0 ? 0 : w == game.getPlayer() ? 1 : -1;
+            return game.getPlayer() == 0 ? practiceGame.getHomeScore() - practiceGame.getAwayScore() :
+            practiceGame.getAwayScore() - practiceGame.getHomeScore();
         }
-        int player = game.getPlayer(); 
-        ArrayList<OthelloGame.Action> actions = game.getActions(turn);
+
+        ArrayList<OthelloGame.Action> actions = practiceGame.getActions(turn);
+        if (actions == null || actions.size() == 0) {
+            // No moves
+            return maxValue(board);
+        }
         // Determine Maximum value among all possible actions
         int bestScore = Integer.MAX_VALUE; // Positive "Infinity"
         for (OthelloGame.Action a : actions) 
         {
             char [][] copyBoard = result(board, a, turn);
-            System.out.println("-----------------------------");
-            System.out.println("MIN NODESSSS: ");
-            for (char[] i : copyBoard) {
-                for (char j : i) {
-                    System.out.print(j);
-                }
-                System.out.println();
-            }
+            // System.out.println("-----------------------------");
+            // System.out.println("MIN NODESSSS: ");
+            // for (char[] i : copyBoard) {
+            //     for (char j : i) {
+            //         System.out.print(j);
+            //     }
+            //     System.out.println();
+            // }
             bestScore = Math.min(bestScore, maxValue(copyBoard));
-            System.out.println("MAX VALUE: " + bestScore);
-            System.out.println("-----------------------------");
-            System.out.println();
+            // System.out.println("MAX VALUE: " + bestScore);
+            // System.out.println("-----------------------------");
+            // System.out.println();
         }
         return bestScore;
     }
@@ -134,35 +140,43 @@ public class OthelloAI extends AbstractAI {
      * @param: The board state to determine maximum move
      **/
     private int maxValue(char[] [] board) {
-        int turn = practiceGame.getPlayer();
+        int turn = game.getPlayer();
         // Is this a terminal board
         practiceGame.updateState(turn, board);
+        //System.out.println("Max Value: ");
+        //practiceGame.displayState();
+        //System.out.println("==============");
         if (practiceGame.computeWinner()) 
         {
             // We have a winner - return its Utility
             //   1 for Player wins, -1 for Player loses, 0 for Tie
             int w = practiceGame.getWinner();
-            return w < 0 ? 0 : w == game.getPlayer() ? 1 : -1;
+            // return w < 0 ? 0 : w == game.getPlayer() ? 1 : -1;
+            return game.getPlayer() == 0 ? practiceGame.getHomeScore() - practiceGame.getAwayScore() :
+            practiceGame.getAwayScore() - practiceGame.getHomeScore();
         }
-        int player = game.getPlayer(); 
-        ArrayList<OthelloGame.Action> actions = game.getActions(turn);
+        ArrayList<OthelloGame.Action> actions = practiceGame.getActions(turn);
+        if (actions == null || actions.size() == 0) {
+            // No moves
+            return minValue(board);
+        }
         // Determine Maximum value among all possible actions
         int bestScore = Integer.MIN_VALUE; // Negative "Infinity"
         for (OthelloGame.Action a: actions)
         {
             char [][] copyBoard = result(board, a, turn);
-            System.out.println("+++++++++++++++++++++++++++++");
-            System.out.println("MAX NODESSSS: ");
-            for (char[] i : copyBoard) {
-                for (char j : i) {
-                    System.out.print(j);
-                }
-                System.out.println();
-            }
+            // System.out.println("+++++++++++++++++++++++++++++");
+            // System.out.println("MAX NODESSSS: ");
+            // for (char[] i : copyBoard) {
+            //     for (char j : i) {
+            //         System.out.print(j);
+            //     }
+            //     System.out.println();
+            // }
             bestScore = Math.max(bestScore, minValue(copyBoard));
-            System.out.println("MAX VALUE: " + bestScore);
-            System.out.println("+++++++++++++++++++++++++++++");
-            System.out.println();
+            // System.out.println("MAX VALUE: " + bestScore);
+            // System.out.println("+++++++++++++++++++++++++++++");
+            // System.out.println();
         }
         return bestScore;
     }
