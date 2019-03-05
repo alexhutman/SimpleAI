@@ -20,13 +20,13 @@ import java.util.Deque;
 import cad.ai.game.*;
 
 /***********************************************************
- * The PlayGame class is designed to allow two players to 
+ * The PlayGame class is designed to allow two players to
  * player against each other off-line.  At start up, players can
  * decide if home is AI or human and the same for the away.
  ***********************************************************/
 public class PlayGame {
     private BufferedReader userIn = null;  // Access to user input
-    private Game game[]; 
+    private Game game[];
     private Game serverGame = null;
     private AI ai[];
     private static enum GameType { NIM, TTT, OTHELLO_MICRO, OTHELLO_MINI, OTHELLO };
@@ -36,7 +36,7 @@ public class PlayGame {
     private int numGames;
     private int verbose;
     private String path = "C:/Ai_Repo/SimpleAI/cad/ai/game/";
-    
+
     /**
      * Constructor
      * @param homeAI 0 if home is human, 1-3 if home is AI (of diff types)
@@ -54,15 +54,15 @@ public class PlayGame {
         this.gameType = gameType;
         this.numGames = numGames;
         this.verbose = verbose;
-	
+
         // Create the game and AI based on type
         // Create the AI based on type
         switch (gameType) {
         case TTT:
             switch (homeAI) {
             case 0: ai[0] = null; break;
-            case 1: ai[0] = new TicTacToeAI(this.path + "TTT-MasterRaceAI.txt"); break;  // Edit these for 
-            default: ai[0] = new TicTacToeAI(this.path + "TTT-MasterRaceAI.txt"); break; 
+            case 1: ai[0] = new TicTacToeAI(this.path + "TTT-MasterRaceAI.txt"); break;  // Edit these for
+            default: ai[0] = new TicTacToeAI(this.path + "TTT-MasterRaceAI.txt"); break;
             }
             switch (awayAI) {
             case 0: ai[1] = null; break;
@@ -70,7 +70,7 @@ public class PlayGame {
             // case 2: ai[1] = new TicTacToeAILearn("memoryA.dat"); break;
             // case 3: ai[1] = new TicTacToeAILearn("memoryB.dat"); break;
             // case 4: ai[1] = new TicTacToeAIMinimax(); break;  // "Perfect" play
-            default: ai[0] = new TicTacToeAI(this.path + "TTT-MasterRaceAI.txt"); break; 
+            default: ai[0] = new TicTacToeAI(this.path + "TTT-MasterRaceAI.txt"); break;
             }
             break;
         case NIM:
@@ -97,9 +97,9 @@ public class PlayGame {
         }
 
         // Let both AI's know we are done - so it can save state...
-        for (int i = 0; i < ai.length; i++)  
+        for (int i = 0; i < ai.length; i++)
             if (ai[i] != null) ai[i].end();
-	    
+
         System.out.println("Good-bye!");
     }
 
@@ -120,7 +120,7 @@ public class PlayGame {
             serverGame = new NimGame(-1, userIn, null, true);
             break;
         case OTHELLO_MICRO: dim -= 4;  // Make sure dim becomes 4
-        case OTHELLO: 
+        case OTHELLO:
             for (int p = 0; p < 2; p++)
                 game[p] = new OthelloGame(p, userIn, ai[p], false, verbose, dim);
             serverGame = new OthelloGame(-1, userIn, null, true, verbose, dim);
@@ -147,10 +147,10 @@ public class PlayGame {
                 processInput(move, turn);
             }
         }
-	
+
         // Display the board one last time
         if (verbose > 0) serverGame.displayState();
-	
+
         // Let the games both know the winner...
         int winner = serverGame.getWinner();
         if (verbose > 0) {
@@ -162,7 +162,7 @@ public class PlayGame {
                 System.out.println("It was a tie.");  // Not possible in NIM.
             }
         }
-	
+
         char r = winner == 0 ? 'H' : winner == 1 ? 'A' : 'T';
         game[0].postWinner(r);
         game[1].postWinner(r);
@@ -203,7 +203,7 @@ public class PlayGame {
             if (verbose > 0) display(pieces[1]);
         }
     }
-	
+
     synchronized private void processGameCommands(String[] pieces, int p) {
         if (pieces.length < 2) {
             debug("Error.  No game subcommand submitted...");
@@ -224,7 +224,7 @@ public class PlayGame {
     synchronized private void processGameStart(String[] pieces, int p) {
         debug("Error.  This should not need to be sent in PlayGame matches.");
     }
-    
+
     synchronized private void processGameState(String[] pieces, int p) {
         debug("Hmm, this should not be transmitted as input to process.  Ignoring...");
     }
@@ -248,7 +248,7 @@ public class PlayGame {
             display("GAME ERROR: " + pieces[2]);
         }
     }
-    
+
     synchronized private void processGameMessage(String[] pieces, int p) {
         if (pieces.length < 3) {
             debug("Game Message was incorrectly transmitted.");
@@ -256,11 +256,11 @@ public class PlayGame {
             if (verbose > 0) display(pieces[2]);
         }
     }
-    
+
     synchronized private void processGameResult(String[] pieces, int p) {
         debug("Hmm, this should not be transmitted either.");
     }
-    
+
     // For displaying debug, error, and regular messages
     private void error(String message) { System.err.println("ERROR: " + message); }
     private void debug(String message) { System.err.println("DEBUG: " + message); }
@@ -276,7 +276,7 @@ public class PlayGame {
         GameType gameType = DEFAULT_GAME;
         int repeat = 1;  // Number of games to play
         int verbose = 1; // How "noisy" to be
-	
+
         // Parse the arguments
         for (String arg: args) {
             try {
@@ -290,7 +290,7 @@ public class PlayGame {
                     else if (params[1].equals("ai")) homeAI = 1;
                     else homeAI = Integer.parseInt(params[1]);
                     break;
-                case "--away": 
+                case "--away":
                     if (params[1].equals("human")) awayAI = 0;
                     else if (params[1].equals("ai")) awayAI = 1;
                     else awayAI = Integer.parseInt(params[1]);
@@ -317,7 +317,7 @@ public class PlayGame {
             } catch (Exception e) {
                 printUsage("Error processing parameter: " + arg);
             }
-        }	    
+        }
 
         PlayGame c = new PlayGame(homeAI, awayAI, gameType, repeat, verbose);
         c.run();
@@ -336,8 +336,8 @@ public class PlayGame {
         System.err.println("         --game=XXX            -- Can be either NIM, TTT, OTHELLO_MICRO, OTHELLO_MINI, OTHELLO (default " + DEFAULT_GAME + ").");
         System.err.println("         --repeat=X            -- Number of games to play (default 1).");
         System.err.println("         --verbose=X           -- 0=quiet, >0=Output more stuff.");
-        if (message != null) 
+        if (message != null)
             System.err.println("       " + message);
         System.exit(1);
-    }       
+    }
 }

@@ -7,7 +7,7 @@
  * AI Game Client
  * This project is designed to link to a basic Game Server to test
  * AI-based solutions.
- * 
+ *
  * OthelloAI:
  *    This class is the main AI system for the Othello game.
  *
@@ -32,16 +32,16 @@ public class OthelloAI extends AbstractAI {
         game = null;
         ran = new Random();
         practiceGame = new OthelloGame(-1, null, null, false, 0);
-
     }
     public synchronized void attachGame(Game g) {
         game = (OthelloGame) g;
+        System.out.println("Minimax ai created as player " + game.getPlayer());
     }
-    
+
     /**
      * Returns the Move as a String "rc" (e.g. 2b)
      **/
-    public synchronized String computeMove() 
+    public synchronized String computeMove()
     {
         if (game == null)
          {
@@ -60,17 +60,17 @@ public class OthelloAI extends AbstractAI {
         {
             char [][] copyBoard = result(board, a, game.getPlayer());
             int score = minValue(copyBoard);
-            if (score > bestScore) 
+            if (score > bestScore)
             {
                 bestAction = a;
                 bestScore = score;
             }
         }
 
-      
+
             return bestAction.toString();
-    }   
-    
+    }
+
 
     public char [][] result (char [][] board, OthelloGame.Action action, int player) {
         practiceGame.updateState(player, board);
@@ -82,12 +82,12 @@ public class OthelloAI extends AbstractAI {
      * Away wishes to MINimize the score.
      * @param: The board state to determine minimum move
      **/
-    private int minValue(char[][] board) 
+    private int minValue(char[][] board)
     {
         int turn = 1 - game.getPlayer();
         // Is this a terminal board
         practiceGame.updateState(turn,board);
-        if (practiceGame.computeWinner()) 
+        if (practiceGame.computeWinner())
         {
             int w = practiceGame.getWinner();
             return game.getPlayer() == 0 ? practiceGame.getHomeScore() - practiceGame.getAwayScore() :
@@ -100,7 +100,7 @@ public class OthelloAI extends AbstractAI {
         }
         // Determine Maximum value among all possible actions
         int bestScore = Integer.MAX_VALUE; // Positive "Infinity"
-        for (OthelloGame.Action a : actions) 
+        for (OthelloGame.Action a : actions)
         {
             char [][] copyBoard = result(board, a, turn);
             bestScore = Math.min(bestScore, maxValue(copyBoard));
@@ -115,7 +115,7 @@ public class OthelloAI extends AbstractAI {
         int turn = game.getPlayer();
         // Is this a terminal board
         practiceGame.updateState(turn, board);
-        if (practiceGame.computeWinner()) 
+        if (practiceGame.computeWinner())
         {
             int w = practiceGame.getWinner();
             return game.getPlayer() == 0 ? practiceGame.getHomeScore() - practiceGame.getAwayScore() :
