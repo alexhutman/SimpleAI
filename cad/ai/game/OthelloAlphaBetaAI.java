@@ -28,6 +28,8 @@ public class OthelloAlphaBetaAI extends AbstractAI {
     public OthelloGame game;  // The game that this AI system is playing
     protected Random ran;
     public OthelloGame practiceGame;
+    protected int maxDepth = 6;
+
     public OthelloAlphaBetaAI() {
         game = null;
         ran = new Random();
@@ -35,7 +37,7 @@ public class OthelloAlphaBetaAI extends AbstractAI {
     }
     public synchronized void attachGame(Game g) {
         game = (OthelloGame) g;
-        System.out.println("Minimax ai created as player " + game.getPlayer());
+        System.out.println("Alpha beta ai created as player " + game.getPlayer());
     }
 
     /**
@@ -56,10 +58,11 @@ public class OthelloAlphaBetaAI extends AbstractAI {
         // First get the list of possible moves
         int player = game.getPlayer(); // Which player are we?
         ArrayList<OthelloGame.Action> actions = game.getActions(player);
+        System.out.println("Depth (computeMove) = " + this.maxDepth);
         for(OthelloGame.Action a : actions)
         {
             char [][] copyBoard = result(board, a, game.getPlayer());
-            int score = minValue(copyBoard, Integer.MIN_VALUE, Integer.MAX_VALUE);
+            int score = minValue(copyBoard, Integer.MIN_VALUE, Integer.MAX_VALUE, this.maxDepth);
             if (score > bestScore)
             {
                 bestAction = a;
@@ -82,10 +85,18 @@ public class OthelloAlphaBetaAI extends AbstractAI {
      * Away wishes to MINimize the score.
      * @param: The board state to determine minimum move
      **/
-    private int minValue(char[][] board, int alpha, int beta)
+    private int minValue(char[][] board, int alpha, int beta, int depth)
     {
       int curAlpha = alpha;
       int curBeta = beta;
+
+      System.out.println("Depth (minValue) = " + depth);
+      if (depth <= 0) {
+        System.out.println("Max depth of " + depth + ", which " + (maxDepth==depth ? "equals " : "DOESN'T EQUAL ") + maxDepth + " reached");
+        int[] boardPieces = countPieces(board);
+        return boardPieces[0] > boardPieces[1] ? practiceGame.getHomeScore() - practiceGame.getAwayScore() :
+        practiceGame.getAwayScore() - practiceGame.getHomeScore();
+      }
 
         int turn = 1 - game.getPlayer();
         // Is this a terminal board
@@ -99,14 +110,14 @@ public class OthelloAlphaBetaAI extends AbstractAI {
         ArrayList<OthelloGame.Action> actions = practiceGame.getActions(turn);
         if (actions == null || actions.size() == 0) {
             // No moves
-            return maxValue(board, curAlpha, curBeta);
+            return maxValue(board, curAlpha, curBeta, depth-1);
         }
         // Determine Maximum value among all possible actions
         int bestScore = Integer.MAX_VALUE; // Positive "Infinity"
         for (OthelloGame.Action a : actions)
         {
             char [][] copyBoard = result(board, a, turn);
-            bestScore = Math.min(bestScore, maxValue(copyBoard, curAlpha, curBeta));
+            bestScore = Math.min(bestScore, maxValue(copyBoard, curAlpha, curBeta, depth-1));
 
             if (bestScore <= curAlpha) {
               return bestScore;
@@ -120,9 +131,17 @@ public class OthelloAlphaBetaAI extends AbstractAI {
      * Home wishes to MAXimize the score.
      * @param: The board state to determine maximum move
      **/
-    private int maxValue(char[] [] board, int alpha, int beta) {
+    private int maxValue(char[] [] board, int alpha, int beta, int depth) {
       int curAlpha = alpha;
       int curBeta = beta;
+
+      System.out.println("Depth (maxValue) = " + depth);
+      if (depth <= 0) {
+        System.out.println("Max depth of " + depth + ", which " + (maxDepth==depth ? "equals " : "DOESN'T EQUAL ") + maxDepth + " reached");
+        int[] boardPieces = countPieces(board);
+        return boardPieces[0] > boardPieces[1] ? practiceGame.getHomeScore() - practiceGame.getAwayScore() :
+        practiceGame.getAwayScore() - practiceGame.getHomeScore();
+      }
 
         int turn = game.getPlayer();
         // Is this a terminal board
@@ -136,14 +155,14 @@ public class OthelloAlphaBetaAI extends AbstractAI {
         ArrayList<OthelloGame.Action> actions = practiceGame.getActions(turn);
         if (actions == null || actions.size() == 0) {
             // No moves
-            return minValue(board, curAlpha, curBeta);
+            return minValue(board, curAlpha, curBeta, depth-1);
         }
         // Determine Maximum value among all possible actions
         int bestScore = Integer.MIN_VALUE; // Negative "Infinity"
         for (OthelloGame.Action a: actions)
         {
             char [][] copyBoard = result(board, a, turn);
-            bestScore = Math.max(bestScore, minValue(copyBoard, curAlpha, curBeta));
+            bestScore = Math.max(bestScore, minValue(copyBoard, curAlpha, curBeta, depth-1));
 
             if (bestScore >= curBeta) {
               return bestScore;
@@ -152,6 +171,24 @@ public class OthelloAlphaBetaAI extends AbstractAI {
             curAlpha = Math.max(curAlpha, bestScore);
         }
         return bestScore;
+    }
+
+    private int[] countPieces(char [][] board) {
+      int numX = 0;
+      int numO = 0;
+      int numBlank = 0;
+
+      for (char[] je : board) {
+        for (char ff : je) {
+          switch (ff) {
+            case 'X': numX++;
+            case 'O': numO++;
+            case ' ': numBlank++;
+          }
+        }
+      }
+
+      return new int[] {numX, numO, numBlank};
     }
 
     /**
