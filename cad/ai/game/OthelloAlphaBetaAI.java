@@ -1,6 +1,6 @@
 /*******************
  * Christian A. Duncan
- * Modified by: David Lepore Alex Hutman Steve
+ * Modified by: ENTER YOUR NAMES HERE!!!!!
  * CSC350: Intelligent Systems
  * Spring 2019
  *
@@ -8,7 +8,7 @@
  * This project is designed to link to a basic Game Server to test
  * AI-based solutions.
  * 
- * OthelloAI:
+ * OthelloAlphaBetaAI:
  *    This class is the main AI system for the Othello game.
  *
  * See README file for more details.
@@ -24,11 +24,14 @@ import java.util.ArrayList;
  *   the move selection is made here - either via user or an attached
  *   AI system.
  ***********************************************************/
-public class OthelloAI extends AbstractAI {
+public class OthelloAlphaBetaAI extends AbstractAI {
     public OthelloGame game;  // The game that this AI system is playing
     protected Random ran;
     public OthelloGame practiceGame;
-    public OthelloAI() {
+    protected int maxDepth = 6;
+    protected int alpha = Integer.MIN_VALUE;
+    protected int beta = Integer.MAX_VALUE;
+    public OthelloAlphaBetaAI() {
         game = null;
         ran = new Random();
         practiceGame = new OthelloGame(-1, null, null, false, 0);
@@ -43,14 +46,15 @@ public class OthelloAI extends AbstractAI {
      **/
     public synchronized String computeMove() 
     {
-        if (game == null)
-         {
+        if (game == null) {
            System.err.println("CODE ERROR: AI is not attached to a game.");
            return "0a";
-         }
+
+
+       }
 
        char[][] board = (char[][]) game.getStateAsObject();
-
+        int depth = this.maxDepth;
         OthelloGame.Action bestAction = null;
         int bestScore = Integer.MIN_VALUE;
         // First get the list of possible moves
@@ -59,7 +63,7 @@ public class OthelloAI extends AbstractAI {
         for(OthelloGame.Action a : actions)
         {
             char [][] copyBoard = result(board, a, game.getPlayer());
-            int score = minValue(copyBoard);
+            int score = minValue(copyBoard, alpha, beta, depth);
             if (score > bestScore) 
             {
                 bestAction = a;
@@ -67,8 +71,17 @@ public class OthelloAI extends AbstractAI {
             }
         }
 
-      
+        // Now just pick of them out at random
+        if(player == 1)
+        {
+        int choice = ran.nextInt(actions.size());
+        return actions.get(choice).toString();
+        }
+        else
+        {
+            System.out.println("BESTACTION: " + bestAction.toString());
             return bestAction.toString();
+        }
     }   
     
 
@@ -82,28 +95,38 @@ public class OthelloAI extends AbstractAI {
      * Away wishes to MINimize the score.
      * @param: The board state to determine minimum move
      **/
-    private int minValue(char[][] board) 
+    private int minValue(char[][] board, int alpha, int beta,  int depth) 
     {
         int turn = 1 - game.getPlayer();
         // Is this a terminal board
         practiceGame.updateState(turn,board);
+        //System.out.println("Min Value: ");
+        //practiceGame.displayState();
+        //System.out.println("==============");
         if (practiceGame.computeWinner()) 
         {
+            // We have a winner - return its Utility
+            //   1 for Player wins, -1 for Player loses, 0 for Tie
             int w = practiceGame.getWinner();
+            // return w < 0 ? 0 : w == game.getPlayer() ? 1 : -1;
             return game.getPlayer() == 0 ? practiceGame.getHomeScore() - practiceGame.getAwayScore() :
             practiceGame.getAwayScore() - practiceGame.getHomeScore();
         }
+
         ArrayList<OthelloGame.Action> actions = practiceGame.getActions(turn);
         if (actions == null || actions.size() == 0) {
             // No moves
-            return maxValue(board);
+            return maxValue(board, alpha, beta, depth-1);
         }
         // Determine Maximum value among all possible actions
         int bestScore = Integer.MAX_VALUE; // Positive "Infinity"
         for (OthelloGame.Action a : actions) 
         {
-            char [][] copyBoard = result(board, a, turn);
-            bestScore = Math.min(bestScore, maxValue(copyBoard));
+             char [][] copyBoard = result(board, a, turn);
+             bestScore = Math.max(bestScore, minValue(copyBoard, alpha, beta, depth-1));
+             if(bestScore >= beta )
+                return bestScore;
+            alpha = Math.max(alpha, bestScore);
         }
         return bestScore;
     }
@@ -111,27 +134,36 @@ public class OthelloAI extends AbstractAI {
      * Home wishes to MAXimize the score.
      * @param: The board state to determine maximum move
      **/
-    private int maxValue(char[] [] board) {
+    private int maxValue(char[] [] board, int alpha, int beta, int depth) {
         int turn = game.getPlayer();
         // Is this a terminal board
         practiceGame.updateState(turn, board);
+        //System.out.println("Max Value: ");
+        //practiceGame.displayState();
+        //System.out.println("==============");
         if (practiceGame.computeWinner()) 
         {
+            // We have a winner - return its Utility
+            //   1 for Player wins, -1 for Player loses, 0 for Tie
             int w = practiceGame.getWinner();
+            // return w < 0 ? 0 : w == game.getPlayer() ? 1 : -1;
             return game.getPlayer() == 0 ? practiceGame.getHomeScore() - practiceGame.getAwayScore() :
             practiceGame.getAwayScore() - practiceGame.getHomeScore();
         }
         ArrayList<OthelloGame.Action> actions = practiceGame.getActions(turn);
         if (actions == null || actions.size() == 0) {
             // No moves
-            return minValue(board);
+            return minValue(board, alpha, beta, depth-1);
         }
         // Determine Maximum value among all possible actions
         int bestScore = Integer.MIN_VALUE; // Negative "Infinity"
         for (OthelloGame.Action a: actions)
         {
             char [][] copyBoard = result(board, a, turn);
-            bestScore = Math.max(bestScore, minValue(copyBoard));
+            bestScore = Math.max(bestScore, minValue(copyBoard,  alpha, beta, depth-1));
+            if(bestScore >= beta )
+                return bestScore;
+            alpha = Math.max(alpha, bestScore);
         }
         return bestScore;
     }

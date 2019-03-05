@@ -81,7 +81,7 @@ public class PlayGame {
         case OTHELLO_MINI:
         case OTHELLO:
             ai[0] = (homeAI == 0 ? null : new OthelloAI());
-            ai[1] = (awayAI == 0 ? null : new OthelloAI());
+            ai[1] = (awayAI == 0 ? null : new OthelloAlphaBetaAI());
             break;
         }
     }
