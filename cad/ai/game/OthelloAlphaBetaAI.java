@@ -71,14 +71,14 @@ public class OthelloAlphaBetaAI extends AbstractAI {
                  bestScore = score;
               }
               case 6:
-               score = minValue(copyBoard, Integer.MIN_VALUE, Integer.MAX_VALUE, this.maxDepth*4);
+               score = minValue(copyBoard, Integer.MIN_VALUE, Integer.MAX_VALUE, this.maxDepth*3);
               if (score > bestScore)
               {
                  bestAction = a;
                  bestScore = score;
               }
                case 8:
-               score = minValue(copyBoard, Integer.MIN_VALUE, Integer.MAX_VALUE, this.maxDepth*8);
+               score = minValue(copyBoard, Integer.MIN_VALUE, Integer.MAX_VALUE, this.maxDepth*3);
               if (score > bestScore)
               {
                  bestAction = a;
