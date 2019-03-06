@@ -48,7 +48,6 @@ public class OthelloAI extends AbstractAI {
            System.err.println("CODE ERROR: AI is not attached to a game.");
            return "0a";
          }
-
        char[][] board = (char[][]) game.getStateAsObject();
 
         OthelloGame.Action bestAction = null;

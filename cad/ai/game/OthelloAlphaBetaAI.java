@@ -28,7 +28,7 @@ public class OthelloAlphaBetaAI extends AbstractAI {
     public OthelloGame game;  // The game that this AI system is playing
     protected Random ran;
     public OthelloGame practiceGame;
-    protected int maxDepth = 6;
+    protected int maxDepth = 4;
 
     public OthelloAlphaBetaAI() {
         game = null;
@@ -50,24 +50,42 @@ public class OthelloAlphaBetaAI extends AbstractAI {
            System.err.println("CODE ERROR: AI is not attached to a game.");
            return "0a";
          }
-
-       char[][] board = (char[][]) game.getStateAsObject();
-
+        char[][] board = (char[][]) game.getStateAsObject();
         OthelloGame.Action bestAction = null;
         int bestScore = Integer.MIN_VALUE;
         // First get the list of possible moves
         int player = game.getPlayer(); // Which player are we?
+        int score;
         ArrayList<OthelloGame.Action> actions = game.getActions(player);
-        System.out.println("Depth (computeMove) = " + this.maxDepth);
+        //System.out.println("Depth (computeMove) = " + this.maxDepth);
         for(OthelloGame.Action a : actions)
         {
             char [][] copyBoard = result(board, a, game.getPlayer());
-            int score = minValue(copyBoard, Integer.MIN_VALUE, Integer.MAX_VALUE, this.maxDepth);
-            if (score > bestScore)
+            switch(copyBoard.length)
             {
-                bestAction = a;
-                bestScore = score;
+              case 4:
+               score = minValue(copyBoard, Integer.MIN_VALUE, Integer.MAX_VALUE, this.maxDepth*2);
+              if (score > bestScore)
+              {
+                 bestAction = a;
+                 bestScore = score;
+              }
+              case 6:
+               score = minValue(copyBoard, Integer.MIN_VALUE, Integer.MAX_VALUE, this.maxDepth*4);
+              if (score > bestScore)
+              {
+                 bestAction = a;
+                 bestScore = score;
+              }
+               case 8:
+               score = minValue(copyBoard, Integer.MIN_VALUE, Integer.MAX_VALUE, this.maxDepth*8);
+              if (score > bestScore)
+              {
+                 bestAction = a;
+                 bestScore = score;
+              }
             }
+            System.out.println(this.maxDepth);
         }
 
 
@@ -90,9 +108,9 @@ public class OthelloAlphaBetaAI extends AbstractAI {
       int curAlpha = alpha;
       int curBeta = beta;
 
-      System.out.println("Depth (minValue) = " + depth);
+      //System.out.println("Depth (minValue) = " + depth);
       if (depth <= 0) {
-        System.out.println("Max depth of " + depth + ", which " + (maxDepth==depth ? "equals " : "DOESN'T EQUAL ") + maxDepth + " reached");
+       // System.out.println("Max depth of " + depth + ", which " + (maxDepth==depth ? "equals " : "DOESN'T EQUAL ") + maxDepth + " reached");
         int[] boardPieces = countPieces(board);
         return boardPieces[0] > boardPieces[1] ? practiceGame.getHomeScore() - practiceGame.getAwayScore() :
         practiceGame.getAwayScore() - practiceGame.getHomeScore();
@@ -135,9 +153,9 @@ public class OthelloAlphaBetaAI extends AbstractAI {
       int curAlpha = alpha;
       int curBeta = beta;
 
-      System.out.println("Depth (maxValue) = " + depth);
+      //System.out.println("Depth (maxValue) = " + depth);
       if (depth <= 0) {
-        System.out.println("Max depth of " + depth + ", which " + (maxDepth==depth ? "equals " : "DOESN'T EQUAL ") + maxDepth + " reached");
+        //System.out.println("Max depth of " + depth + ", which " + (maxDepth==depth ? "equals " : "DOESN'T EQUAL ") + maxDepth + " reached");
         int[] boardPieces = countPieces(board);
         return boardPieces[0] > boardPieces[1] ? practiceGame.getHomeScore() - practiceGame.getAwayScore() :
         practiceGame.getAwayScore() - practiceGame.getHomeScore();
