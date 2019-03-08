@@ -195,53 +195,57 @@ public class OthelloAlphaBetaAI extends AbstractAI {
     return bestScore;
   }
 
-  private void countCornerPieces(int player, char[][] board) {
+  private int evalBoard(int player, char [] [] board)
+  {
+    int numOfPermPieces = countPermPieces(countCornerPieces(player, board), board, player);
+    int numOfNonPermPieces = countPieces(board);
+  }
+  private int countPermPieces(int [] corners, int [] [] board, int player)
+  {
+    int numOfPermPieces = 0;
+    for(int x = 0; x < corners.length; x++)
+    {
+      if(corners[x] == 1)
+      {
+        for(int i = 0; i < board.length; i++)
+        {
+          int n = i;
+           if(x == 0)
+           {
+              
+           }
+           if(x == 1)
+           {
+
+           }
+           if(x == 2)
+           {
+
+           }
+           if(x == 3)
+           {
+
+           }
+        }
+      }
+    }
+  }
+  private int [] countCornerPieces(int player, char[][] board) {
     int boardLength = board[0].length-1;
     int[] lol = new int[4];
     int[] x = {0,boardLength,0,boardLength};
     int[] y = {0,0,boardLength,boardLength};
-
-    //System.out.println("Calling func");
-
-    switch (player) {
-      case 0:
-      for (int i=0; i<4; i++) {
-        System.out.println(player);
-        if(board[x[i]][y[i]] == 'X') {
-          //System.out.println("Corner (" + x[i] + ", " + y[i] + ") is an X");
+      for (int i=0; i<4; i++) 
+      {
+        if(board[x[i]][y[i]] == 'X' && player == 0) {
+          System.out.println("Corner (" + x[i] + ", " + y[i] + ") is an X");
+          lol[i] = 1;
+        }
+        if(board[x[i]][y[i]] == 'O' && player == 1) {
+          System.out.println("Corner (" + x[i] + ", " + y[i] + ") is an O");
           lol[i] = 1;
         }
       }
-      case 1:
-      for (int i=0; i<4; i++) {
-        //System.out.println(player);
-        if(board[x[i]][y[i]] == 'O') {
-          //System.out.println("Corner (" + x[i] + ", " + y[i] + ") is an O");
-          lol[i] = 1;
-        }
-      }
-    }
-
-    if(player==0){
-      System.out.println("------------");
-
-      System.out.println("Player " + player);
-      System.out.println("Board:");
-
-      for (char[] je : board) {
-        for (char ff : je) {
-          System.out.print(ff);
-        }
-        System.out.println("");
-      }
-
-      for(int jef : lol) {
-        System.out.print(jef + ", ");
-      }
-      System.out.println("------------");
-      System.exit(0);
-    }
-    //return lol;
   }
 
   private int[] countPieces(char [][] board) {
