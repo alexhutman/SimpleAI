@@ -114,7 +114,7 @@ public class OthelloAlphaBetaAI extends AbstractAI {
     if (depth <= 0) {
       // System.out.println("Max depth of " + depth + ", which " + (maxDepth==depth ? "equals " : "DOESN'T EQUAL ") + maxDepth + " reached");
       int[] boardPieces = countPieces(board);
-      countCornerPieces(turn, board);
+      //countCornerPieces(turn, board);
       return boardPieces[0] > boardPieces[1] ? practiceGame.getHomeScore() - practiceGame.getAwayScore() :
       practiceGame.getAwayScore() - practiceGame.getHomeScore();
     }
@@ -162,7 +162,7 @@ public class OthelloAlphaBetaAI extends AbstractAI {
     if (depth <= 0) {
       //System.out.println("Max depth of " + depth + ", which " + (maxDepth==depth ? "equals " : "DOESN'T EQUAL ") + maxDepth + " reached");
       int[] boardPieces = countPieces(board);
-      countCornerPieces(turn, board);
+      //countCornerPieces(turn, board);
       return boardPieces[0] > boardPieces[1] ? practiceGame.getHomeScore() - practiceGame.getAwayScore() :
       practiceGame.getAwayScore() - practiceGame.getHomeScore();
     }
@@ -195,58 +195,58 @@ public class OthelloAlphaBetaAI extends AbstractAI {
     return bestScore;
   }
 
-  private int evalBoard(int player, char [] [] board)
-  {
-    int numOfPermPieces = countPermPieces(countCornerPieces(player, board), board, player);
-    int numOfNonPermPieces = countPieces(board);
-  }
-  private int countPermPieces(int [] corners, int [] [] board, int player)
-  {
-    int numOfPermPieces = 0;
-    for(int x = 0; x < corners.length; x++)
-    {
-      if(corners[x] == 1)
-      {
-        for(int i = 0; i < board.length; i++)
-        {
-          int n = i;
-           if(x == 0)
-           {
-              
-           }
-           if(x == 1)
-           {
+  // private int evalBoard(int player, char [] [] board)
+  // {
+  //   int numOfPermPieces = countPermPieces(countCornerPieces(player, board), board, player);
+  //   int numOfNonPermPieces = countPieces(board);
+  // }
+  // private int countPermPieces(int [] corners, int [] [] board, int player)
+  // {
+  //   int numOfPermPieces = 0;
+  //   for(int x = 0; x < corners.length; x++)
+  //   {
+  //     if(corners[x] == 1)
+  //     {
+  //       for(int i = 0; i < board.length; i++)
+  //       {
+  //         int n = i;
+  //          if(x == 0)
+  //          {
 
-           }
-           if(x == 2)
-           {
+  //          }
+  //          if(x == 1)
+  //          {
 
-           }
-           if(x == 3)
-           {
+  //          }
+  //          if(x == 2)
+  //          {
 
-           }
-        }
-      }
-    }
-  }
-  private int [] countCornerPieces(int player, char[][] board) {
-    int boardLength = board[0].length-1;
-    int[] lol = new int[4];
-    int[] x = {0,boardLength,0,boardLength};
-    int[] y = {0,0,boardLength,boardLength};
-      for (int i=0; i<4; i++) 
-      {
-        if(board[x[i]][y[i]] == 'X' && player == 0) {
-          System.out.println("Corner (" + x[i] + ", " + y[i] + ") is an X");
-          lol[i] = 1;
-        }
-        if(board[x[i]][y[i]] == 'O' && player == 1) {
-          System.out.println("Corner (" + x[i] + ", " + y[i] + ") is an O");
-          lol[i] = 1;
-        }
-      }
-  }
+  //          }
+  //          if(x == 3)
+  //          {
+
+  //          }
+  //       }
+  //     }
+  //   }
+  // }
+  // private int [] countCornerPieces(int player, char[][] board) {
+  //   int boardLength = board[0].length-1;
+  //   int[] lol = new int[4];
+  //   int[] x = {0,boardLength,0,boardLength};
+  //   int[] y = {0,0,boardLength,boardLength};
+  //     for (int i=0; i<4; i++) 
+  //     {
+  //       if(board[x[i]][y[i]] == 'X' && player == 0) {
+  //         System.out.println("Corner (" + x[i] + ", " + y[i] + ") is an X");
+  //         lol[i] = 1;
+  //       }
+  //       if(board[x[i]][y[i]] == 'O' && player == 1) {
+  //         System.out.println("Corner (" + x[i] + ", " + y[i] + ") is an O");
+  //         lol[i] = 1;
+  //       }
+  //     }
+  // }
 
   private int[] countPieces(char [][] board) {
     int numX = 0;
