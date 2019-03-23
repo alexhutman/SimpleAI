@@ -15,8 +15,11 @@
 ********************/
 package cad.ai.game;
 
-import java.util.Random;
-import java.util.ArrayList;
+import java.util.*;
+import java.io.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.lang.*;
 
 /***********************************************************
 * The AI system for a OthelloGame.
@@ -29,6 +32,9 @@ public class OthelloAlphaBetaAI extends AbstractAI {
   protected Random ran;
   public OthelloGame practiceGame;
   protected int maxDepth = 4;
+  protected String fileName; 
+  private Pattern r;
+  private Matcher m;
   protected int[][] weightedScores = {
     {100 , -10 , 8  ,  6 ,  6 , 8  , -10 ,  100},
     {-10 , -25 ,  -4, -4 , -4 , -4 , -25 , -10 },
@@ -38,11 +44,60 @@ public class OthelloAlphaBetaAI extends AbstractAI {
     {8   ,  -4 ,   6,   4,   4,   6,  -4 ,  8  },
     {-10 , -25 ,  -4, -4 , -4 , -4 , -25 , -10 },
     {100 , -10 , 8  ,  6 ,  6 , 8  , -10 ,  100}};
-
-    public OthelloAlphaBetaAI() {
+  protected Map <String, Record> hmap;
+  protected Stack <String> setOfMoves;
+  protected int maxTurn = 5; 
+  int cornerHeursitic = 0;
+  int moblityHeursitic = 0;
+  int stabiltyHeursitic = 0;
+  int coinParityHeursitic = 0;
+  private String pattern = "([0-1])#([0-7][a-h])#([0-9]+)-([0-9]+)-([0-9]+)#([0-9]+.[0-9]+(E-?[0-9]+)?)";
+   protected BufferedReader reader;
+  public OthelloAlphaBetaAI()
+  {
+    this("C:/Ai_Repo/SimpleAI/cad/ai/game/firstMovesOthello.txt");
+  }
+    public OthelloAlphaBetaAI(String fileName) 
+    {
+      this.fileName = fileName;
       game = null;
       ran = new Random();
       practiceGame = new OthelloGame(-1, null, null, false, 0);
+      hmap = new HashMap<String, Record>();
+      setOfMoves = new Stack<>();
+      this.r = Pattern.compile(this.pattern);
+      int player;
+      String action;
+      String boardState;
+      int wins, losses, ties;
+      double score;
+      String line;
+      try {
+        reader = new BufferedReader(new FileReader(this.fileName));
+        while ((line = reader.readLine()) != null) {
+          this.m = this.r.matcher(line);
+          if (m.find()) {
+            player = Integer.parseInt(m.group(1));
+            action = m.group(2);
+            wins = Integer.parseInt(m.group(3));
+            losses = Integer.parseInt(m.group(4));
+            ties = Integer.parseInt(m.group(5));
+            String strscore = m.group(6);
+            score = Double.valueOf(strscore);
+            Record r = new Record(wins,losses,ties,score);
+            hmap.put(player+"#"+action,r);
+            System.out.println(player+""+action+""+wins+""+losses+""+ties+""+strscore);
+          }
+          else {
+            System.out.println("oh dear.");
+          }
+        }
+        reader.close();   
+      }
+      catch (Exception jeff) {
+        System.out.println("ERROR:" + jeff);
+      }
+
     }
     public synchronized void attachGame(Game g) {
       game = (OthelloGame) g;
@@ -64,7 +119,9 @@ public class OthelloAlphaBetaAI extends AbstractAI {
       int bestScore = Integer.MIN_VALUE;
       // First get the list of possible moves
       int player = game.getPlayer(); // Which player are we?
+      char piece;
       int score;
+      //evalBoard(player, board);
       ArrayList<OthelloGame.Action> actions = game.getActions(player);
       //System.out.println("Depth (computeMove) = " + this.maxDepth);
       for(OthelloGame.Action a : actions)
@@ -87,7 +144,7 @@ public class OthelloAlphaBetaAI extends AbstractAI {
             bestScore = score;
           }
           case 8:
-          score = minValue(copyBoard, Integer.MIN_VALUE, Integer.MAX_VALUE, 10);
+          score = minValue(copyBoard, Integer.MIN_VALUE, Integer.MAX_VALUE, this.maxDepth*2);
           if (score > bestScore)
           {
             bestAction = a;
@@ -95,8 +152,19 @@ public class OthelloAlphaBetaAI extends AbstractAI {
           }
         }
       }
-
-
+      
+     if(this.maxTurn >= 0)
+     {
+      String straction = bestAction.toString();
+      Record record = hmap.get(straction);
+      if(r == null)
+      {
+          record  = new Record(0,false);
+          hmap.put(game.getPlayer()+"#"+straction, record);
+      }
+      setOfMoves.push(new String (straction));
+     }
+      this.maxTurn -=1;
       return bestAction.toString();
     }
 
@@ -116,20 +184,14 @@ public class OthelloAlphaBetaAI extends AbstractAI {
       int curAlpha = alpha;
       int curBeta = beta;
 
-      //System.out.println("Depth (minValue) = " + depth);
       int turn = 1 - game.getPlayer();
 
-      if (depth <= 0) {
-        // System.out.println("Max depth of " + depth + ", which " + (maxDepth==depth ? "equals " : "DOESN'T EQUAL ") + maxDepth + " reached");
-        int[] boardPieces = countPieces(board);
-        //countCornerPieces(turn, board);
-        int myScore = evalBoard(turn,board);
-        int oppScore = -1*myScore;
-
-        if(myScore > oppScore) {
-          return boardPieces[0] > boardPieces[1] ? practiceGame.getHomeScore() - practiceGame.getAwayScore() :
+      if (depth <= 0) 
+      {
+        evalBoard(turn, board);
+        return practiceGame.getHomeScore() > practiceGame.getAwayScore() ? practiceGame.getHomeScore() - practiceGame.getAwayScore() :
           practiceGame.getAwayScore() - practiceGame.getHomeScore();
-        }
+
       }
 
       // Is this a terminal board
@@ -172,17 +234,13 @@ public class OthelloAlphaBetaAI extends AbstractAI {
 
       int turn = game.getPlayer();
 
-      if (depth <= 0) {
-        //System.out.println("Max depth of " + depth + ", which " + (maxDepth==depth ? "equals " : "DOESN'T EQUAL ") + maxDepth + " reached");
-        int[] boardPieces = countPieces(board);
-        //countCornerPieces(turn, board);
-        int myScore = evalBoard(turn,board);
-        int oppScore = -1*myScore;
+      if (depth <= 0) 
+      {
+                evalBoard(turn, board);
+        //System.out.println("HI: "+practiceGame.getHomeScore()+"AwAY:"+practiceGame.getAwayScore());
+        return practiceGame.getHomeScore() > practiceGame.getAwayScore()? practiceGame.getHomeScore() - practiceGame.getAwayScore() :
+        practiceGame.getAwayScore() - practiceGame.getHomeScore();
 
-        if(myScore > oppScore) {
-          return boardPieces[0] > boardPieces[1] ? practiceGame.getHomeScore() - practiceGame.getAwayScore() :
-          practiceGame.getAwayScore() - practiceGame.getHomeScore();
-        }
       }
       // Is this a terminal board
       practiceGame.updateState(turn, board);
@@ -213,95 +271,159 @@ public class OthelloAlphaBetaAI extends AbstractAI {
       return bestScore;
     }
 
-    //  private int evalBoard2(int player, char [] [] board)
-    //  {
-    //    int numOfPermPieces = countPermPieces(countCornerPieces(player, board), board, player);
-    //    int numOfNonPermPieces = countPieces(board);
-    //  }
-    // private int countPermPieces(int [] corners, int [] [] board, int player)
-    // {
-    //   int numOfPermPieces = 0;
-    //   for(int x = 0; x < corners.length; x++)
-    //   {
-    //     if(corners[x] == 1)
-    //     {
-    //       for(int i = 0; i < board.length; i++)
-    //       {
-    //         int n = i;
-    //          if(x == 0)
-    //          {
-    //
-    //          }
-    //          if(x == 1)
-    //          {
-    //
-    //          }
-    //          if(x == 2)
-    //          {
-    //
-    //          }
-    //          if(x == 3)
-    //          {
-    //
-    //          }
-    //       }
-    //     }
-    //   }
-    // }
-
-    public int evalBoard(int player, char[][] board){
-      int opponent = 1-player;
-
-      char myChar = (player == 0) ? 'X' : 'O';
-      char oppChar = (opponent == 1) ? 'O' : 'X';
-
-      int myScore = 0, oppScore = 0;
-
-      for (int i = 0; i < 8; i++) {
-        for (int j = 0; j < 8; j++) {
-          if(board[i][j]==myChar) myScore += weightedScores[i][j];
-          if(board[i][j]==oppChar) oppScore += weightedScores[i][j];
-        }
-      }
-      return myScore - oppScore;
+    public void evalBoard(int player, char[][] board)
+    {
+      this.coinParityHeursitic = calcuateCoinParity(player,board);
+      this.cornerHeursitic = calcuateCornerHeursitic(player, board);
+      //System.out.println("coinParityHeursitic:"+this.coinParityHeursitic+"cornerHeursitic"+this.cornerHeursitic);
+     // this.stabiltyHeursitic = calcualteStabilityHeursitic(player,board);
     }
 
-    // private int [] countCornerPieces(int player, char[][] board) {
-    //   int boardLength = board[0].length-1;
-    //   int[] lol = new int[4];
-    //   int[] x = {0,boardLength,0,boardLength};
-    //   int[] y = {0,0,boardLength,boardLength};
-    //     for (int i=0; i<4; i++)
-    //     {
-    //       if(board[x[i]][y[i]] == 'X' && player == 0) {
-    //         System.out.println("Corner (" + x[i] + ", " + y[i] + ") is an X");
-    //         lol[i] = 1;
-    //       }
-    //       if(board[x[i]][y[i]] == 'O' && player == 1) {
-    //         System.out.println("Corner (" + x[i] + ", " + y[i] + ") is an O");
-    //         lol[i] = 1;
-    //       }
-    //     }
-    // }
+    private void calcualteStabilityHeursitic(int player, char [] [] board)
+    {
 
-    private int[] countPieces(char [][] board) {
-      int numX = 0;
-      int numO = 0;
-      int numBlank = 0;
-
-      for (char[] je : board) {
-        for (char ff : je) {
-          switch (ff) {
-            case 'X': numX++;
-            case 'O': numO++;
-            case ' ': numBlank++;
+    }
+    private int calcuateCoinParity(int player, char [] [] board)
+    { 
+        int [] pieces = countPieces(board);
+        String str  = Arrays.toString(pieces);
+        //System.out.println(str);
+        return player == 0 ?  25 * (pieces[0]- pieces[1])/(pieces[0]+ pieces[1]) : 
+        25 * (pieces[1] -pieces[0])/(pieces[1]+ pieces[0]);
+    }
+    private int calcuateCornerHeursitic(int player, char [][] board)
+    {
+      int endHeur = 0;
+      int cornerHeurvalue =0;
+      int oppcornerHeurValue =0;
+      int [] heurValues = countCornerPieces(player, board);
+        if(player == 0)
+       {
+         cornerHeurvalue = heurValues[0];
+          oppcornerHeurValue= heurValues[1];
+       }
+       else
+        {
+           cornerHeurvalue = heurValues[1];
+          oppcornerHeurValue= heurValues[0];
+        }
+        if(cornerHeurvalue + oppcornerHeurValue != 0)
+        {
+          endHeur = 30 * (cornerHeurvalue- oppcornerHeurValue)/(cornerHeurvalue+oppcornerHeurValue);
+        }
+        else
+        {
+          endHeur = 0;
+        }
+        return endHeur;
+    }
+    private int [] countCornerPieces(int player, char[][] board) 
+    {
+      int boardLength = board[0].length-1;
+      int[] lol = new int[6];
+      lol[0]=0; lol [1]=0; lol[2]=0; lol [3]=0; lol[4]=0; lol[5] =0;
+      int[] x = {0,0,boardLength,boardLength};
+      int[] y = {0,boardLength,0,boardLength};
+      int [] corners = new int[4];
+      char [] unlikelyCorners =  {
+        board[0][1], 
+        board[1][0], 
+        board[1][1], 
+        board[0][6],
+        board[1][7],
+        board[1][6],
+        board[6][0],
+        board[7][1],
+        board[6][1],
+        board[6][7],
+        board[7][6],
+        board[6][6]};
+      char [] potentialCorners= {
+        board[0][2], 
+        board[2][0], 
+        board[2][2], 
+        board[0][5],
+        board[2][7],
+        board[2][5],
+        board[5][0],
+        board[7][2],
+        board[5][2],
+        board[7][5],
+        board[5][7],
+        board[5][5]};
+      // lol[0] = number of perm corners home has
+      // lol[1] = the number of perm corners away has
+      // lol[2] = number of unlikely/ pieces that home has
+      // lol[3] = number of unlikely pieces away has
+      //lol[4] = number of potential pieces home have 
+      // lol[5] =  number of potential pieces away  has
+      
+        for (int i=0; i<4; i++)
+        {
+          if(board[x[i]][y[i]] == 'X')
+           {
+              lol[0] += 4;
+              corners[i] = 1;
+           }
+          if(board[x[i]][y[i]] == 'O') 
+          {
+              lol[1] += 4;
+              corners[i] = 2;
+          }
+           if(board[x[i]][y[i]] == ' ')
+          {
+            corners[i] = 3;
           }
         }
-      }
 
-      return new int[] {numX, numO, numBlank};
+        int index = 0; 
+        for(int m = 0; m < 12; m++)
+        {
+          if(unlikelyCorners[m] == 'X' && (corners[index] == 2|| corners[index]== 3 ))
+          {
+             if(m % 3 == 2)
+            {
+              lol[3] -= 4;
+            }
+            else
+            lol[3] -=3;
+          }
+          if(unlikelyCorners[m] == 'O'&& (corners[index] == 1 || corners[index]== 3 ))
+          {
+            if(m % 3 == 2)
+            {
+              lol[3] -= 4;
+            }
+            else
+            lol[3] -=3;
+          }
+          if(potentialCorners[m] == 'X')
+          {
+            if(m % 3 == 2)
+            {
+              lol[3] += 1;
+            }
+            else
+            lol[3] +=2;
+          }
+          if(potentialCorners[m] == 'O')
+          {
+           if(m % 3 == 2)
+            {
+              lol[3] += 1;
+            }
+            else
+            lol[3] +=2; 
+          }
+          if(m + 2 % 4 == 0)
+          {
+            index++;
+          }
+        }
+        int homeCornerHeur = lol[0] + lol[2] + lol[4];
+        int awayCornerHeur = lol[1] + lol[3] + lol[5];
+        return new int [] {homeCornerHeur, awayCornerHeur};
     }
-
     /**
     * Inform AI who the winner is
     *   result is either (H)ome win, (A)way win, (T)ie
@@ -310,6 +432,34 @@ public class OthelloAlphaBetaAI extends AbstractAI {
     public synchronized void postWinner(char result) {
       // This AI probably wants to store what it has learned
       // about this particular game.
+      String [] setOfMovesArr = setOfMoves.toArray(new String [0]);
+      setOfMoves.clear();
+      int player = game.getPlayer();
+
+    // Determine if we won (2), lost (0), or tied (1)
+    int res = 0;
+    if (result == 'T') res = 1;  // We ties
+    else if (result == 'H') {
+      if (player == 0) res = 2; // We won
+      else res = 0; // We lost
+    } else { // result == 'A'
+      if (player == 1) res = 2; // We won
+      else res = 0; // We lost
+    }
+    
+      for(int i = 0; i < setOfMovesArr.length; i++)
+      {
+        if(hmap.containsKey(setOfMovesArr[i]))
+        {
+        hmap.get(setOfMovesArr[i]).updateRecord(res);
+        }
+        else
+        {
+          Record newRecord = new Record(player, res);
+          hmap.put(game.getPlayer()+"#"+setOfMovesArr[i], newRecord); 
+
+        }
+      } 
       game = null;  // No longer playing a game though.
     }
 
@@ -317,8 +467,89 @@ public class OthelloAlphaBetaAI extends AbstractAI {
     * Shutdown the AI - allowing it to save its learned experience
     **/
     @Override
-    public synchronized void end() {
+    public synchronized void end() 
+    {
       // This AI probably wants to store (in a file) what
       // it has learned from playing all the games so far...
+      try {
+        FileWriter fw = new FileWriter(this.fileName, false);
+        BufferedWriter bw = new BufferedWriter(fw);
+        PrintWriter out = new PrintWriter(bw);
+        Object [] keys = this.hmap.keySet().toArray();
+        for (int i = 0; i < keys.length; i++) 
+        {
+        
+          char separator = '#';
+          Record x = hmap.get(keys[i].toString());
+          out.print(keys[i].toString());
+          out.print(separator);
+          out.print(x.ReturnRecord());
+          out.print(separator);
+          out.print(x.ReturnScore());
+          out.println();          
+        }
+        out.flush();  
+        out.close(); 
+      } 
+      catch (Exception meme) 
+      {
+        System.out.println("ERROR: " + meme);
+      }
+    }
+    private void countPermPieces(int [] corners, int [] [] board, int player)
+    {
+      int numOfPermPieces = 0;
+      for(int x = 0; x < corners.length; x++)
+      {
+        if(corners[x] == 1)
+        {
+          for(int i = 0; i < board.length; i++)
+          {
+            int n = i;
+             if(x == 0)
+             {
+    
+             }
+             if(x == 1)
+             {
+    
+             }
+             if(x == 2)
+             {
+    
+             }
+             if(x == 3)
+             {
+    
+             }
+          }
+        }
+      }
+    }
+
+ private int[] countPieces(char [][] board) {
+      int numX = 0;
+      int numO = 0;
+      int numBlank = 0;
+
+      for (char[] je : board) {
+        for (char ff : je) 
+        {
+          if(ff == 'X')
+          {
+            numX++;
+          }
+          if(ff == 'O')
+          {
+            numO++;
+          }
+          if(ff == ' ')
+          {
+            numBlank++;
+          }
+        }
+      }
+
+      return new int[] {numX, numO, numBlank};
     }
   }

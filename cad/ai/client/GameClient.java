@@ -26,26 +26,28 @@ import java.util.concurrent.Callable;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import cad.ai.game.*;
+//import cad.ai.solutions.TicTacToeAIMinimax;
 
 /***********************************************************
  * The GameClient is the front-end text-based interface to the
  * Client-side of the Game Server.
  ***********************************************************/
 public class GameClient {
-    private final static int DEFAULT_PORT = 1350;   // The default port that this client connects to...
+    public final static int DEFAULT_PORT = 1350;   // The default port that this client connects to...
+    public static enum GameType { NIM, TTT, OTHELLO };
+    public static final GameType DEFAULT_GAME = GameType.OTHELLO;
 
     private BufferedReader userIn = null;  // User connection
     private String hostname;   // The machine to connect to
     private int port;          // The port that this client connects to...
     private String pname;      // The name of the player
     private int pid;           // The player's id in the game
+    private String code = "???";       // Access code
     private int tid;           // The tournament's id (generally not useful if only one Tour running)
     private ExecutorService executor;    // Used to create new threads
     private Connection conn = null;
     private Game game = null;
-    private AI ai = null;
-    private static enum GameType { NIM, TTT, OTHELLO };
-    private static final GameType DEFAULT_GAME = GameType.NIM;
+    protected AI ai = null;
     private GameType gameType;
     private int aiLevel = 0;
     private boolean done = false;
@@ -58,22 +60,25 @@ public class GameClient {
      * @param port The port to connect to -1 means use default 1350
      * @param pname The name of the player
      * @param pid The id of the player if returning or -1 if a new player
+     * @param code The CODE to transmit (a simple "PASSWORD")
      * @param tid The id of the tournament to join or -1 if just the first tourn available.
      * @param aiFlag Whether or not to create an AI for this client.
      * @param aiLevel If AI is true, level determines what version of AI to use.
      * @param verbose - how much to output [0 = quite, >0 = noisier]
      * @param gameType - what type of game to play.
      *
-     * In general, the port, pid, and tid can just be -1.
+     * In general, the port, pid, and tid can just be -1 and code can be ignored
      * The exception is if the player's GameClient crashed or lost connection and had to reconnect.
      * The pid can be used to connect back to the same player in the tournament.
      **/
-    public GameClient(String hostname, int port, String pname, int pid, int tid,
+    public GameClient(String hostname, int port, String pname, 
+                      int pid, String code, int tid,
                       boolean aiFlag, int aiLevel, int verbose, GameType gameType) {
         this.hostname = hostname;
         if (port >= 0) this.port = port; else this.port = DEFAULT_PORT;
         this.pname = pname;
         this.pid = pid;
+        this.code = code;
         this.tid = tid;
         this.aiLevel = aiLevel;
         this.verbose = verbose;
@@ -85,6 +90,10 @@ public class GameClient {
         done = false;
         if (aiFlag) createAI(); else this.ai = null;
     }
+
+    /***** Accessor/Mutator Methods ******/
+    public int getAILevel() { return aiLevel; }
+    public GameType getGameType() { return gameType; }
 
     /**
      * Process the game (one frame)
@@ -148,9 +157,20 @@ public class GameClient {
             case NIM:
                 ai = new NimAI(); break;
             case TTT:
-                ai = new TicTacToeAI(); break;
+                switch (aiLevel) {
+                case 1: ai = new TicTacToeAI(); break;
+                //case 2: ai = new TicTacToeAIMinimax(); break;
+                default: ai = new TicTacToeAI(); break;
+                }
+                break;
             case OTHELLO:
-                ai = new OthelloAI(); break;
+                // Redundant - used to support additional AI options if desired
+                switch (aiLevel) {
+                case 1: ai = new OthelloAlphaBetaAI(); break;
+                case 2: ai = new OthelloAlphaBetaAI(); break;
+                default: ai = new OthelloAlphaBetaAI();
+                }
+                break;
             default:
                 System.err.println("Coding Error: Unsupported game type... using no AI.");
                 ai = null;
@@ -186,7 +206,7 @@ public class GameClient {
             } catch (InterruptedException e) {
             }
         }
-	    
+        
         System.out.println("Good-bye!");
         conn.close();
         executor.shutdown();
@@ -198,17 +218,17 @@ public class GameClient {
     private void runGame() {
         player = new FutureTask<Integer>(new Callable<Integer>() {
                 public Integer call() {
-                    while (!done) {
-                        try {
+                    try { 
+                        while (!done) {
                             processGame();
                             Thread.sleep(100);  // Sleep for a bit
-                        } catch (InterruptedException e) {
                         }
+                    } catch (InterruptedException e) {
                     }
                     return new Integer(0);
                 }
             });
-	
+    
         executor.execute(player);
     }
 
@@ -217,7 +237,7 @@ public class GameClient {
         private PrintWriter out = null;
         private BufferedReader in = null;
         private Deque<String> messages = null;
-	
+    
         public Connection() throws UnknownHostException, IOException {
             this.sock = new Socket(hostname, port);
             this.out = new PrintWriter(sock.getOutputStream(), true);
@@ -225,7 +245,7 @@ public class GameClient {
             this.messages = new ArrayDeque<String>();
             initialHandshake();
         }
-	
+    
         /***
          * The initial connection to the game server based on the parameters specified
          * at creation time.
@@ -238,12 +258,12 @@ public class GameClient {
                 if (pid == -1) {
                     out.println("@NEW PLAYER");    // New player
                 } else {
-                    out.println("@PLAYER:" + pid); // Returning player
+                    out.println("@PLAYER:" + pid + ":" + code); // Returning player
                 }
 
                 // Set player name
                 out.println("@NAME:" + pname);
-		
+        
                 // Join the tournament
                 if (tid < 0)
                     out.println("@TOUR:JOIN");
@@ -270,7 +290,7 @@ public class GameClient {
                 }
             }
             return new Integer(0);
-        }			    
+        }               
 
         /**
          * Determine if communication is still active
@@ -302,14 +322,14 @@ public class GameClient {
                 }
             }
         }
-	
+    
         /**
          * Post a message to be transmitted to the Server (done next chance by Connection Thread)
          **/
         public synchronized void postMessage(String message) {
             messages.addLast(message);   // Store the message in the messages Queue.
         }
-	
+    
         /**
          * Post a message to be transmitted to the Server (done next chance by Connection Thread)
          * This also appends a new line to end of message.
@@ -317,13 +337,13 @@ public class GameClient {
         public synchronized void postMessageLn(String message) {
             messages.addLast(message + "\n");   // Store the message in the messages Queue.
         }
-	
+    
         /**
          * Transmit (all) messages in the Queue.
          **/
         private synchronized void transmitMessages() throws IOException {
             if (out == null) return;  // No output buffer available
-	    
+        
             while (!messages.isEmpty()) {
                 String m = messages.removeFirst();
                 out.print(m);
@@ -336,14 +356,14 @@ public class GameClient {
          **/
         private void processInput() throws IOException {
             if (in == null || !in.ready()) return;  // No input ready to process
-	    
+        
             // We'll process only ONE action per frame - the rest are just QUEUED
             // Of course, we could take all requests or just a few requests.
             // This is to prevent some BOT from generating LOTS of action requests.
             long time = System.currentTimeMillis();
             String message = in.readLine();
             lastReceived = time;  // For keeping connection alive...
-	    
+        
             if (message == null) {
                 // End of transmission
                 this.close();
@@ -383,12 +403,14 @@ public class GameClient {
         }
 
         synchronized private void processPID(String[] pieces) {
-            if (pieces.length < 2) {
-                debug("PID was transmitted without a valid ID.");
+            if (pieces.length < 3) {
+                debug("PID was transmitted without a valid ID and CODE.");
             } else {
                 try { 
                     pid = Integer.parseInt(pieces[1]);
+                    code = pieces[2];
                     System.out.println("Player registered with ID=" + pid +
+                                       " and code " + code + 
                                        ".  Remember this in case you have to reconnect.");
                 } catch (Exception e) {
                     debug("PID was not properly transmitted as an integer: " + pieces[1]);
@@ -446,7 +468,7 @@ public class GameClient {
             display("The tournament has ended.");
             setDone(true);
         }
-	
+    
         synchronized private void processGameCommands(String[] pieces) {
             if (pieces.length < 2) {
                 debug("No game subcommand submitted...");
@@ -469,7 +491,7 @@ public class GameClient {
                 debug("Game Start message was incorrectly transmitted!");
                 return;
             }
-	    
+        
             // A new game is to start
             int p = (pieces[2].charAt(0) == 'H' ? 0 : 1);  // Get player's role (H or A)
             System.out.println("A new game has started.  You are " +
@@ -477,14 +499,14 @@ public class GameClient {
                                ". Your opponent is " + pieces[3] + ".");
             createNewGame(p);
         }
-	
+    
         synchronized private void processGameState(String[] pieces) {
             if (pieces.length < 3)
                 debug("No game state information was transmitted!");
             else
                 updateGame(pieces[2]);
         }
-	
+    
         synchronized private void processGameErrorMessage(String[] pieces) {
             if (pieces.length < 3) {
                 debug("Game Error Message was incorrectly transmitted by server.");
@@ -510,7 +532,7 @@ public class GameClient {
                 game = null;  // No longer need to store this game
             }
         }
-	
+    
         synchronized private void processGameForfeit(String[] pieces) {
             if (pieces.length < 3) {
                 debug("Game Forfeit was incorrectly transmitted by server.");
@@ -530,7 +552,7 @@ public class GameClient {
                 }
             }
         }
-	
+    
         // Close the connection (can also be used to stop the thread)
         public synchronized void close() {
             try {
@@ -571,14 +593,15 @@ public class GameClient {
         // Defaults to use
         String hostname = "localhost";
         int port = DEFAULT_PORT;
-        String name = "???";
+        String name = null;
         int pid = -1;
+        String code = "???";
         int tid = -1;
         boolean ai = true;
         int aiLevel = 1;
         int verbose = 1;  // How "noisy" to be
         GameType gameType = DEFAULT_GAME;  // Use Default first
-	
+    
         // Parse the arguments
         for (String arg: args) {
             try {
@@ -597,6 +620,7 @@ public class GameClient {
                     }
                     break;
                 case "--pid": pid = Integer.parseInt(params[1]); break;
+                case "--code": code = params[1]; break;
                 case "--tid": tid = Integer.parseInt(params[1]); break;
                 case "+ai": ai = true; break;
                 case "-ai": ai = false; break;
@@ -614,9 +638,12 @@ public class GameClient {
             } catch (Exception e) {
                 printUsage("Error processing parameter: " + arg);
             }
-        }	    
+        }
+        if (name == null) {
+            printUsage("Error: Name must be specified!");
+        }
 
-        GameClient c = new GameClient(hostname, port, name, pid, tid,
+        GameClient c = new GameClient(hostname, port, name, pid, code, tid, 
                                       ai, aiLevel, verbose, gameType);
         c.run();
     }
@@ -632,12 +659,13 @@ public class GameClient {
         System.err.println("         --host=hostname");
         System.err.println("         --port=integer  The port to connect to");
         System.err.println("                         DEFAULT is " + DEFAULT_PORT);
-        System.err.println("         --name=playerName");
+        System.err.println("         --name=playerName (MANDATORY)");
         System.err.println("         --pid=playerID");
+        System.err.println("         --code=CODE (Use to reconnect)");
         System.err.println("         --tid=tournamentID");
         System.err.println("         --ai=true/false [default=true]");
         System.err.println("         [+/-]ai  -- Use or don't use AI");
-        System.err.println("         --level=X   The level of AI to use 0, 1, ...  (0=NimAi, 1=TTTAI) [default=1]");
+        System.err.println("         --level=X   The level of AI to use 0, 1, ... (0=human, >1=Some AI depending on game");
         System.err.println("         --verbose=X           -- 0=quiet, >0=Output more stuff.");
         if (message != null) System.err.println("       " + message);
         System.exit(1);
